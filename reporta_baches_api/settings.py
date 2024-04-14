@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders',
     'rest_framework',
+    'coreapi',
     'reporta_baches_api.domain.user',
     'reporta_baches_api.domain.reportes'
 ]

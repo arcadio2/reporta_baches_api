@@ -33,7 +33,7 @@ class UserBaseParams:
 
 class User(AbstractUser):
 
-    id = models.UUIDField(primary_key=True, editable=False)
+    id = models.UUIDField(primary_key=True, editable=False,  default=uuid.uuid4)
     name = models.CharField(max_length=255)
     second_name = models.CharField(max_length=150, blank=True, null=True)
     m_last_name = models.CharField(max_length=150, blank=True, null=True)

@@ -1,7 +1,8 @@
 from rest_framework import viewsets, views, permissions
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.response import Response
-from datetime import datetime 
+from datetime import datetime, timedelta
+
 from rest_framework import status
 
 from reporta_baches_api.domain.user.models import User
@@ -20,6 +21,9 @@ class RegisterViewSet(viewsets.ModelViewSet):
 
 class Register(CreateLisViewSet): 
     serializer_class = UserSerializer
+
+    def get_queryset(self):
+        return super().get_queryset()
     def get_serializer_class(self):
         if self.action == "create":
             return UserSerializer
@@ -51,14 +55,16 @@ class LoginView(views.APIView):
         if user is None: 
             raise AuthenticationFailed("User not found")
         
-        if not user.check_password(password):
+
+        print(user.password, password)
+        if not password == user.password:
             raise AuthenticationFailed("Incorrect password")
         
         payload = {
-            'id':user.id,
+            'id':str(user.id),
             'name':user.name,
-            'exp':datetime.datetime.utcnow() + datetime.timedelta(minutes=60),
-            'iat': datetime.datetime.utcnow() 
+            'exp':datetime.now() +timedelta(minutes=60),
+            'iat': datetime.now() 
         }
         token = jwt.encode(payload,'secret',algorithm="HS256")
 
@@ -69,8 +75,7 @@ class LoginView(views.APIView):
             'jwt':token
             #'user': UserSerializer(user)
         }
-        
-
+    
         return response
 
 class LogoutView(views.APIView):

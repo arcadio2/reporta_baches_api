@@ -24,10 +24,12 @@ class ReportesAppServices:
             longitud=data['longitud']
         )
 
+        self.reportes_service.create_reporte_trabajador(params)
+
     def create_reporte_ciudadano_from_dict(self, data:dict): 
 
         params = ReporteCiudadanoBaseParams(
-            params = ReporteCiudadanoBaseParams(
+          
                 user=data['user'],
                 latitud=data['latitud'],
                 longitud=data['longitud'],
@@ -36,7 +38,7 @@ class ReportesAppServices:
                 cp=data['cp'],
                 descripcion=data['descripcion'],
                 referencia_adicional=data['referencia_adicional'],
-                direccion=data['direccion'],
-                prioridad=data['prioridad']
-            )
+                direccion=data['direccion']
+            
         )
+        self.reportes_service.create_reporte_ciudadano(params)

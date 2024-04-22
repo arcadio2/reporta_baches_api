@@ -28,15 +28,23 @@ class AlcaldiaSerializer(serializers.ModelSerializer):
         fields = ['id', 'alcaldia']
 
 class ReporteTrabajadorSerializer(serializers.ModelSerializer):
-    prioridad = PrioridadSerializer()
-    tipo_bache = TipoBacheSerializer()
-    estado_reporte = EstadoReporteSerializer()
+    prioridad = serializers.CharField(source='prioridad.prioridad')
+    tipo_bache = serializers.CharField(source = "tipo_bache.tipo")#TipoBacheSerializer()
+    estado_reporte = serializers.CharField(source = "estado_reporte.estado") #EstadoReporteSerializer()
     class Meta:
         model = ReporteTrabajador
         fields = ['id', 'user', 'ancho', 'profundidad', 'prioridad', 'tipo_bache', 'estado_reporte', 'latitud', 'longitud']
+        extra_kwargs = {
+            'id':{'read_only':True}
+        }  
+ 
 
 class ReporteCiudadanoSerializer(serializers.ModelSerializer):
-    direccion = CalleSerializer()
+    direccion = serializers.CharField(source = "direccion.calle")
+    alcaldia = serializers.CharField(source = "direccion.alcaldia.alcaldia")
     class Meta:
         model = ReporteCiudadano
-        fields = ['id', 'user', 'latitud', 'longitud', 'num_ext', 'num_int', 'cp', 'descripcion', 'referencia_adicional', 'direccion']
+        fields = ['id', 'user', 'latitud', 'longitud', 'num_ext', 'num_int', 'cp', 'descripcion', 'referencia_adicional', 'direccion', 'alcaldia']
+        extra_kwargs = {
+            'id':{'read_only':True}
+        }  

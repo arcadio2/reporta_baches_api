@@ -19,7 +19,7 @@ class ReporteCiudadanoBaseParams:
     descripcion: str
     referencia_adicional: str
     direccion: UUID
-    prioridad: UUID
+    #prioridad: UUID
 
 @dataclass
 class ReporteTrabajadorBaseParams:
@@ -53,7 +53,7 @@ class ReporteCiudadano(custom_models.DatedModel):
     num_int = models.IntegerField()
     cp = models.IntegerField(max_length = 5)
     descripcion = models.CharField(max_length = 300)
-    referencia_adicional = models.CharField(max_length = 200)
+    referencia_adicional = models.CharField(max_length = 200, null=True)
     direccion = models.ForeignKey(Calle, on_delete = models.DO_NOTHING)
 
 
@@ -90,6 +90,7 @@ class ReporteTrabajador(custom_models.DatedModel):
 
     latitud = models.DecimalField(max_digits = 23, decimal_places =4 )
     longitud =  models.DecimalField(max_digits = 23, decimal_places =4 )
+    direccion = models.ForeignKey(Calle, on_delete = models.DO_NOTHING,null=True)
 
 
 
@@ -107,7 +108,7 @@ class ReporteCiudadanoFactory:
             descripcion=base_params.descripcion,
             referencia_adicional=base_params.referencia_adicional,
             direccion_id=base_params.direccion,
-            prioridad_id=base_params.prioridad
+            #prioridad_id=base_params.prioridad
         )
 
 class ReporteTrabajadorFactory:

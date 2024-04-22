@@ -2,6 +2,7 @@ from typing import Type, List, Dict
 from .models import ReporteCiudadano, ReporteTrabajador
 from .models import ReporteCiudadanoFactory, ReporteTrabajadorFactory
 from .models import ReporteCiudadanoBaseParams, ReporteTrabajadorBaseParams
+from django.db.models.manager import BaseManager
 
 class ReportesService:
      
@@ -14,10 +15,10 @@ class ReportesService:
     def get_reporte_trabajador_factory(self) -> Type[ReporteTrabajadorFactory]:
         return ReporteTrabajadorFactory
     
-    def get_reporte_ciudadano_repo(self) -> Type[ReporteCiudadano]:
+    def get_reporte_ciudadano_repo(self) -> BaseManager[ReporteCiudadano]:
         return ReporteCiudadano.objects
     
-    def get_reporte_trabajador_repo(self) -> Type[ReporteTrabajador]:
+    def get_reporte_trabajador_repo(self) -> BaseManager[ReporteTrabajador]:
         return ReporteTrabajador.objects
     
     def create_reporte_ciudadano(

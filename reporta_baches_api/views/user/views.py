@@ -6,6 +6,8 @@ from datetime import datetime, timedelta
 from rest_framework import status
 
 from reporta_baches_api.domain.user.models import User
+from django.contrib.auth.models import Group
+
 import jwt
 from reporta_baches_api.views.user.serializers import UserSerializer
 from reporta_baches_api.lib.django.custom_views import CreateLisViewSet
@@ -34,7 +36,14 @@ class Register(CreateLisViewSet):
         serializer = self.get_serializer(data=data)
         if(serializer.is_valid()):
             user = serializer.save() 
-            print(user)
+            roles = request.data.get('roles', ["ciudadano"])
+            for role_name in roles:
+                try:
+                    role = Group.objects.get(name=role_name)
+                    user.groups.add(role)
+                except Group.DoesNotExist:
+                    pass
+            
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         
         return ResponseError.build_single_error(
@@ -46,6 +55,7 @@ class Register(CreateLisViewSet):
 
 class LoginView(views.APIView):  
     def post(self, request):
+        print("Entra aquí")
         
         email = request.data["email"]
         password = request.data["password"]
@@ -63,20 +73,57 @@ class LoginView(views.APIView):
         payload = {
             'id':str(user.id),
             'name':user.name,
-            'exp':datetime.now() +timedelta(minutes=60),
+            'exp':datetime.now() +timedelta(days=60),
             'iat': datetime.now() 
         }
         token = jwt.encode(payload,'secret',algorithm="HS256")
+
+        user_serializer = UserSerializer(user)
+        
 
         response = Response()
         response.set_cookie(key='jwt',value=token, httponly=True)
         response.data={
             'message': 'success',
-            'jwt':token
-            #'user': UserSerializer(user)
+            'jwt':token,
+            'user':user_serializer.data
         }
     
         return response
+
+class CheckAuthStatusView(views.APIView):
+    def get(self, request):
+        if 'Authorization' not in request.headers:
+            raise AuthenticationFailed("El encabezado 'Authorization' no está presente en la solicitud")
+        
+        auth_header = request.headers['Authorization']
+        
+        
+        try:
+            if not auth_header.startswith('Bearer '):
+                raise AuthenticationFailed("El token Bearer no está presente en el encabezado 'Authorization'")
+            # Decodificar el token JWT
+            jwt_token = auth_header.split('Bearer ')[1]
+            payload = jwt.decode(jwt_token, 'secret', algorithms=["HS256"])
+            user_id = payload['id']
+            # Buscar al usuario en la base de datos
+            user = User.objects.get(id=user_id)
+            
+            # Serializar el usuario para enviarlo como respuesta
+            user_serializer = UserSerializer(user)
+            
+            # Devolver la respuesta con el usuario autenticado
+            return Response({
+                'authenticated': True,
+                'jwt': jwt_token,
+                'user': user_serializer.data
+            })
+        except jwt.ExpiredSignatureError:
+            raise AuthenticationFailed("El token JWT ha expirado")
+        except jwt.InvalidTokenError:
+            raise AuthenticationFailed("Token JWT inválido")
+        except User.DoesNotExist:
+            raise AuthenticationFailed("Usuario asociado al token no encontrado")
 
 class LogoutView(views.APIView):
     def post(self, request): 

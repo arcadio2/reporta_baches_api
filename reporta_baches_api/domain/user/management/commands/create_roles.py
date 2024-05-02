@@ -5,6 +5,6 @@ class Command(BaseCommand):
     help = 'Crea roles predeterminados'
 
     def handle(self, *args, **options):
-        roles_to_create = ['admin', 'ciudadano','trabjador']  # Lista de roles a crear
+        roles_to_create = ['admin', 'ciudadano','trabajador']  # Lista de roles a crear
         for role_name in roles_to_create:
             _, created = Group.objects.get_or_create(name=role_name)

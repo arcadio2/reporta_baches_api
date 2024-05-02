@@ -1,25 +1,29 @@
 from rest_framework import serializers
 
-from reporta_baches_api.domain.user.models import User
+from reporta_baches_api.domain.user.models import User, Empresa
 from django.contrib.auth.models import Group
 
 
+class EmpresaSerializer(serializers.ModelSerializer):
+    class Meta: 
+        model = Empresa
+        fields = ['id','empresa']
+        
+
 class UserSerializer(serializers.ModelSerializer):
-    fullName = serializers.SerializerMethodField()
     roles = serializers.SerializerMethodField()
+    empresa = serializers.CharField(source = "empresa.empresa", read_only=True)
+
     class Meta: 
         model = User
-        fields = ['id','name','email','password', 'second_name','m_last_name','p_last_name','fullName','roles'] 
-
+        fields = ['id','name','email','password','roles','empresa','numero_empleado','telefono']
         
         extra_kwargs = {
             'password':{'write_only':True},
             'fullName':{'read_only':True},
             'id':{'read_only':True}
         }  
-    def get_fullName(self, obj):
-        # Concatena el nombre y los apellidos
-        return f"{obj.name} {obj.m_last_name} {obj.p_last_name}"
+
     def get_roles(self, obj):
         # Obtener los roles del usuario
         roles = obj.groups.all()

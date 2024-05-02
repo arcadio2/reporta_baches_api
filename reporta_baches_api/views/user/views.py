@@ -5,11 +5,11 @@ from datetime import datetime, timedelta
 
 from rest_framework import status
 
-from reporta_baches_api.domain.user.models import User
+from reporta_baches_api.domain.user.models import User, Empresa
 from django.contrib.auth.models import Group
 
 import jwt
-from reporta_baches_api.views.user.serializers import UserSerializer
+from reporta_baches_api.views.user.serializers import UserSerializer, EmpresaSerializer
 from reporta_baches_api.lib.django.custom_views import CreateLisViewSet
 from reporta_baches_api.lib.errors.response_errors import ResponseError
 from rest_framework.decorators import action
@@ -33,19 +33,32 @@ class Register(CreateLisViewSet):
     #@action(methods=["post"],detail=False)
     def create(self, request):
         data = request.data
+        print(data)
         serializer = self.get_serializer(data=data)
         if(serializer.is_valid()):
+            print("Es valido xd")
             user = serializer.save() 
+            
             roles = request.data.get('roles', ["ciudadano"])
             for role_name in roles:
                 try:
                     role = Group.objects.get(name=role_name)
                     user.groups.add(role)
+                    if role_name == "trabajador":
+                        empresa = request.data.get('empresa', None)
+                        if empresa:
+                            try:
+                                empresa = Empresa.objects.get(empresa=empresa)
+                                user.empresa = empresa
+                                user.save()
+                            except Empresa.DoesNotExist:
+                                pass
                 except Group.DoesNotExist:
                     pass
             
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        
+        else: 
+            print("No es valido")
         return ResponseError.build_single_error(
                 status.HTTP_400_BAD_REQUEST,
                 "serializer-error-exception", 
@@ -89,6 +102,18 @@ class LoginView(views.APIView):
             'user':user_serializer.data
         }
     
+        return response
+
+class EmpresasView(views.APIView):
+    def get(self, request):
+        empresas = Empresa.objects.all()
+        serializer = EmpresaSerializer(empresas, many=True)
+        print(serializer.data)
+        response = Response()
+        response.data={
+            'message': 'success',
+            'empresas':serializer.data
+        }
         return response
 
 class CheckAuthStatusView(views.APIView):

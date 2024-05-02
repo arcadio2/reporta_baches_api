@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 import uuid
+from reporta_baches_api.lib.django import custom_models
 
 
 from dataclasses import dataclass
@@ -31,15 +32,21 @@ class UserBaseParams:
     password:str
     
 
+class Empresa(custom_models.DatedModel):
+    id = models.UUIDField(primary_key=True, editable=False,  default=uuid.uuid4)
+    empresa = models.CharField(max_length=255)
+
 class User(AbstractUser):
 
     id = models.UUIDField(primary_key=True, editable=False,  default=uuid.uuid4)
     name = models.CharField(max_length=255)
-    second_name = models.CharField(max_length=150, blank=True, null=True)
-    m_last_name = models.CharField(max_length=150, blank=True, null=True)
-    p_last_name = models.CharField(max_length=150, blank=True, null=True)
 
+    numero_empleado = models.CharField(max_length=255, null=True)
     email = models.CharField(max_length=255, unique=True)
+
+    empresa = models.ForeignKey(Empresa, on_delete = models.DO_NOTHING, null=True, blank=True)
+
+    telefono = models.CharField(max_length=20, help_text='Formato: +525537048075', null=True, blank=True)  
     
     email_code = models.CharField(max_length=100, blank=True, null=True)
     password = models.CharField(max_length=255)
@@ -56,9 +63,6 @@ class UserFactory:
     ) -> User:
         return User(
                 name=base_params.name,
-                second_name=base_params.second_name,
-                m_last_name=base_params.m_last_name,
-                p_last_name=base_params.p_last_name,
                 email=base_params.email,
                 email_code=base_params.email_code,
                 password=base_params.password

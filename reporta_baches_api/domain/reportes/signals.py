@@ -16,10 +16,20 @@ def create_default(sender, **kwargs):
     EstadoReporte = apps.get_model('reportes','EstadoReporte')
     if not EstadoReporte.objects.filter(estado = "Enviado"):
         EstadoReporte.objects.create(estado = "Enviado")
+    if not EstadoReporte.objects.filter(estado = "Aceptado"):
+        EstadoReporte.objects.create(estado = "Aceptado")
+    if not EstadoReporte.objects.filter(estado = "Denegado"):
+        EstadoReporte.objects.create(estado = "Denegado")
 
     TipoBache =  apps.get_model('reportes','TipoBache')
     if not TipoBache.objects.filter(tipo = "grieta cocodrilo"): 
         TipoBache.objects.create(tipo = "grieta cocodrilo")
+    if not TipoBache.objects.filter(tipo = "grieta latera"): 
+        TipoBache.objects.create(tipo = "grieta lateral")
+    if not TipoBache.objects.filter(tipo = "grieta longitudinal"): 
+        TipoBache.objects.create(tipo = "grieta longitudinal")
+    if not TipoBache.objects.filter(tipo = "bache"): 
+        TipoBache.objects.create(tipo = "bache")
 
     Alcaldia = apps.get_model('reportes','Alcaldia')
     if not Alcaldia.objects.filter(alcaldia = "Cuauhtémoc"):
@@ -27,6 +37,12 @@ def create_default(sender, **kwargs):
         Calle = apps.get_model('reportes','Calle')
         if not Calle.objects.filter(calle = 'Madero'):
             Calle.objects.create(calle = 'Madero', alcaldia = alcaldia)
+    
+    Empresa = apps.get_model('user','Empresa')
+    if not Empresa.objects.filter(empresa = "Bacheo Jet"):
+        Empresa.objects.create(empresa = "Bacheo Jet")
+    if not Empresa.objects.filter(empresa = "Tapabaches"):
+        Empresa.objects.create(empresa = "Tapabaches")
     
     
     

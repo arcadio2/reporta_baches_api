@@ -41,4 +41,5 @@ class ReportesAppServices:
                 direccion=data['direccion']
             
         )
-        self.reportes_service.create_reporte_ciudadano(params)
+        reporte = self.reportes_service.create_reporte_ciudadano(params)
+        return reporte

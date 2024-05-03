@@ -5,7 +5,6 @@ from rest_framework.exceptions import AuthenticationFailed
 def token_required(view_func):
     def wrapper(request, *args, **kwargs):
         authorization_header = request.META.get('HTTP_AUTHORIZATION', '')
-        print(authorization_header)
         token = None
        
         if authorization_header.startswith('Bearer '):

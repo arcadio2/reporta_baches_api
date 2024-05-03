@@ -47,7 +47,9 @@ class ReporteCiudadanoSerializer(serializers.ModelSerializer):
     alcaldia = serializers.CharField(source = "direccion.alcaldia.alcaldia")
     class Meta:
         model = ReporteCiudadano
-        fields = ['id', 'user', 'latitud', 'longitud', 'num_ext', 'num_int', 'cp', 'descripcion', 'referencia_adicional', 'direccion', 'alcaldia']
+        fields = ['id','created_at', 'user', 'latitud', 'longitud', 'num_ext', 'num_int', 'cp', 'descripcion', 'referencia_adicional', 'direccion', 'alcaldia']
         extra_kwargs = {
-            'id':{'read_only':True}
+            'id':{'read_only':True},
+            'created_at':{'read_only':True},
+            'user':{'read_only':True},
         }  

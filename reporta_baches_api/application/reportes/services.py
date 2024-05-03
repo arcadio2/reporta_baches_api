@@ -24,7 +24,7 @@ class ReportesAppServices:
             longitud=data['longitud']
         )
 
-        self.reportes_service.create_reporte_trabajador(params)
+        return self.reportes_service.create_reporte_trabajador(params)
 
     def create_reporte_ciudadano_from_dict(self, data:dict): 
 

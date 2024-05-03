@@ -24,7 +24,7 @@ def create_default(sender, **kwargs):
     TipoBache =  apps.get_model('reportes','TipoBache')
     if not TipoBache.objects.filter(tipo = "grieta cocodrilo"): 
         TipoBache.objects.create(tipo = "grieta cocodrilo")
-    if not TipoBache.objects.filter(tipo = "grieta latera"): 
+    if not TipoBache.objects.filter(tipo = "grieta lateral"): 
         TipoBache.objects.create(tipo = "grieta lateral")
     if not TipoBache.objects.filter(tipo = "grieta longitudinal"): 
         TipoBache.objects.create(tipo = "grieta longitudinal")

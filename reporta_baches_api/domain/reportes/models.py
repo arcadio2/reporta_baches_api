@@ -47,8 +47,8 @@ class Calle(models.Model):
 class ReporteCiudadano(custom_models.DatedModel): 
     id = models.UUIDField(primary_key=True, editable=False,  default=uuid.uuid4)
     user = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,null=True)
-    latitud = models.DecimalField(max_digits = 23, decimal_places =4 )
-    longitud =  models.DecimalField(max_digits = 23, decimal_places =4 )
+    latitud = models.DecimalField(max_digits = 23, decimal_places =7 )
+    longitud =  models.DecimalField(max_digits = 23, decimal_places =7 )
     num_ext = models.IntegerField()
     num_int = models.IntegerField()
     cp = models.IntegerField(max_length = 5)
@@ -88,8 +88,8 @@ class ReporteTrabajador(custom_models.DatedModel):
     tipo_bache = models.ForeignKey(TipoBache, on_delete = models.DO_NOTHING)
     estado_reporte = models.ForeignKey(EstadoReporte, on_delete = models.DO_NOTHING)
 
-    latitud = models.DecimalField(max_digits = 23, decimal_places =4 )
-    longitud =  models.DecimalField(max_digits = 23, decimal_places =4 )
+    latitud = models.DecimalField(max_digits = 23, decimal_places =7 )
+    longitud =  models.DecimalField(max_digits = 23, decimal_places =7 )
     direccion = models.ForeignKey(Calle, on_delete = models.DO_NOTHING,null=True)
 
 

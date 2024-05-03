@@ -43,6 +43,7 @@ class ReportesTrabajador(CreateLisViewSet):
     @method_decorator(token_required)
     def create(self, request, payload): 
         data = request.data
+        print(data)
         serializer = self.get_serializer(data=data)
         if(serializer.is_valid()):
             tipo_bache = TipoBache.objects.filter(tipo = data.get("tipo_bache")).first()
@@ -52,13 +53,16 @@ class ReportesTrabajador(CreateLisViewSet):
             reporte["tipo_bache"] = tipo_bache.id
             reporte["estado_reporte"] = estado_reporte.id
             reporte["prioridad"] = prioridad.id
+            reporte["user"] = payload["id"]
             
             reportesApp = ReportesAppServices()
 
-            reportesApp.create_reporte_trabajador_from_dict(reporte)
+            reporte = reportesApp.create_reporte_trabajador_from_dict(reporte)
+            serializer = ReporteTrabajadorSerializer(reporte)
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-
+        else: 
+            print("ENTRA")
         return ResponseError.build_single_error(
                 status.HTTP_400_BAD_REQUEST,
                 "serializer-error-exception", 
@@ -107,7 +111,7 @@ class ReportesCiudadanos(CreateLisViewSet):
             return ReporteCiudadanoSerializer
         
      
-    #@method_decorator(token_required)
+    @method_decorator(token_required)
     def create(self, request, payload=None): 
         data = request.data
         serializer = self.get_serializer(data=data)
@@ -124,6 +128,7 @@ class ReportesCiudadanos(CreateLisViewSet):
 
 
             reporte["direccion"] = direccion.id
+            reporte["user"] = payload["id"]
             del reporte["alcaldia"]
             print(reporte)
 

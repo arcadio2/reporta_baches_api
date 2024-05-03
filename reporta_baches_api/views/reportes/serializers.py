@@ -31,11 +31,14 @@ class ReporteTrabajadorSerializer(serializers.ModelSerializer):
     prioridad = serializers.CharField(source='prioridad.prioridad')
     tipo_bache = serializers.CharField(source = "tipo_bache.tipo")#TipoBacheSerializer()
     estado_reporte = serializers.CharField(source = "estado_reporte.estado") #EstadoReporteSerializer()
+    
     class Meta:
         model = ReporteTrabajador
-        fields = ['id', 'user', 'ancho', 'profundidad', 'prioridad', 'tipo_bache', 'estado_reporte', 'latitud', 'longitud']
+        fields = ['id', 'created_at', 'user', 'ancho', 'profundidad', 'prioridad', 'tipo_bache', 'estado_reporte', 'latitud', 'longitud']
         extra_kwargs = {
-            'id':{'read_only':True}
+            'id':{'read_only':True},
+            'user':{'read_only':True},
+            'created_at':{'read_only':True}
         }  
  
 

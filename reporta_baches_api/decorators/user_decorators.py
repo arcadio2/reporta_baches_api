@@ -14,16 +14,17 @@ def token_required(view_func):
         if not token:
             token = request.COOKIES.get('jwt')
 
-        print(token)
+        
 
         if not token:
             raise AuthenticationFailed("Unauthenticated")
 
         try:
             payload = jwt.decode(token, 'secret', algorithms=['HS256'])
-            print(payload)
         except jwt.ExpiredSignatureError:
             raise AuthenticationFailed("Unauthenticated")
+        except (jwt.InvalidKeyError, jwt.InvalidSignatureError):
+             raise AuthenticationFailed("Unauthenticated")
         
         return view_func(request, payload, *args, **kwargs)
 

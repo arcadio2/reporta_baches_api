@@ -1,0 +1,19 @@
+item {
+    id: 1
+    name: 'grieta cocodrilo'
+}
+
+item {
+    id: 2
+    name: 'grieta lateral'
+}
+
+item {
+    id: 3
+    name: 'grieta longitudinal'
+}
+
+item {
+    id: 4
+    name: 'bache'
+}

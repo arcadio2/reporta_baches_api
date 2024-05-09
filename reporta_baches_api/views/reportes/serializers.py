@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from reporta_baches_api.domain.reportes.models import ReporteTrabajador, ReporteCiudadano
 from reporta_baches_api.domain.reportes.models import Prioridad, TipoBache, EstadoReporte, Calle, Alcaldia
+from reporta_baches_api.domain.images.models import ImagenesTrabajador, ImagenesCiudadano
 
 class PrioridadSerializer(serializers.ModelSerializer):
     class Meta:
@@ -53,3 +54,9 @@ class ReporteCiudadanoSerializer(serializers.ModelSerializer):
             'created_at':{'read_only':True},
             'user':{'read_only':True},
         }  
+
+
+class ImagenesTrabajadorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ImagenesTrabajador
+        fields = ['id','image_antes','image_despues','valido']

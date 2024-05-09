@@ -16,12 +16,16 @@ from reporta_baches_api.domain.reportes.models import(
     Alcaldia
 )
 from django.utils.decorators import method_decorator
+from rest_framework.views import APIView
 
-from reporta_baches_api.views.reportes.serializers import ReporteCiudadanoSerializer, ReporteTrabajadorSerializer
+from reporta_baches_api.views.reportes.serializers import ReporteCiudadanoSerializer, ReporteTrabajadorSerializer, ImagenesTrabajadorSerializer
 from reporta_baches_api.application.reportes.services import  ReportesAppServices
 from reporta_baches_api.domain.reportes.services import ReportesService
 from rest_framework import status
 from rest_framework.response import Response
+from django.http import HttpResponse
+import io
+from django.core.files.uploadedfile import InMemoryUploadedFile
 
 #Librerias para modelo
 #Loading the saved_model
@@ -39,14 +43,14 @@ import os
 
 # ================== Modelo de IA ==================
 # Importando el modelo
-PATH_TO_SAVED_MODEL="./../../../mobilenet/saved_model"
+PATH_TO_SAVED_MODEL="/home/bruno-rg/reporta_baches_api/mobilenet/saved_model"
 print('Loading model... \n', end='')
 # Load saved model and build the detection function
 detect_fn=tf.saved_model.load(PATH_TO_SAVED_MODEL)
 print('Done!')
 
 #Loading the label_map
-category_index=label_map_util.create_category_index_from_labelmap("./../../../label_map.pbtxt",use_display_name=True)
+category_index=label_map_util.create_category_index_from_labelmap("/home/bruno-rg/reporta_baches_api/label_map.pbtxt",use_display_name=True)
 
 def load_image_into_numpy_array(path):
     return np.array(Image.open(path))
@@ -92,7 +96,7 @@ class ReportesTrabajador(CreateLisViewSet):
             reporte = reportesApp.create_reporte_trabajador_from_dict(reporte)
             serializer = ReporteTrabajadorSerializer(reporte)
             for image in images:
-                ImagenesTrabajador.objects.create(image=image, reporte=reporte)
+                #ImagenesTrabajador.objects.create(image_antes=image, reporte=reporte)
                 print('Ejecutando inferencia... ')
                 
                 image_np = load_image_into_numpy_array(image)
@@ -115,6 +119,7 @@ class ReportesTrabajador(CreateLisViewSet):
                 # detection_classes should be ints.
                 detections['detection_classes'] = detections['detection_classes'].astype(np.int64)
 
+
                 image_np_with_detections = image_np.copy()
 
                 viz_utils.visualize_boxes_and_labels_on_image_array(
@@ -127,9 +132,16 @@ class ReportesTrabajador(CreateLisViewSet):
                     max_boxes_to_draw=200,
                     min_score_thresh=.4, # Adjust this value to set the minimum probability boxes to be classified as True
                     agnostic_mode=False)
-                print(image_np_with_detections) # Esta es la imagen que quieres Arcadiooo 
                 
+                validacion = not (image_np_with_detections == image_np).all()
 
+                img_io = io.BytesIO()
+                processed_image = Image.fromarray(image_np_with_detections)
+                processed_image.save(img_io, format='JPEG')
+                img_io.seek(0)
+                img_file = InMemoryUploadedFile(img_io, None, 'processed_image.jpg', 'image/jpeg', img_io.tell(), None)
+                ImagenesTrabajador.objects.create(image_antes=image, image_despues=img_file, valido=validacion ,reporte=reporte)
+                
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else: 
             print("ENTRA")
@@ -243,7 +255,38 @@ class ReportesCiudadanos(CreateLisViewSet):
             ).get_response()
         data = 1 
         
+class VisualizarImagen(CreateLisViewSet):
+    
+    serializer_class = ImagenesTrabajadorSerializer
+    model = ImagenesTrabajador
+    #parser_classes = [MultiPartParser, FormParser]
 
+    def get_queryset(self):
+        return ImagenesTrabajador.objects.all()
+    
+    def get_serializer_class(self):
+        
+        return ImagenesTrabajadorSerializer
     
 
+    def get(self, request):
+        return Response(ImagenesTrabajadorSerializer(ImagenesTrabajador.objects.all()).data)
     
+    @action(detail=False, methods=['get'], name='get_imagen')
+    def get_imagen(self, request):
+        queryparams = request.query_params
+        image_id= queryparams["image_id"]
+        print(image_id)
+        try:
+            imagen = ImagenesTrabajador.objects.get(id=image_id)
+        except ImagenesTrabajador.DoesNotExist:
+            return Response({'error': 'Image not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = ImagenesTrabajadorSerializer(imagen)
+        # Incluir la URL de la imagen en la respuesta JSON
+        data = serializer.data
+        data['image_url'] = imagen.image_despues.url 
+        image_content = imagen.image_despues.read()
+        content_type = 'image/jpeg'
+        return HttpResponse(image_content, content_type=content_type)
+

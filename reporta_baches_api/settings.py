@@ -88,12 +88,12 @@ WSGI_APPLICATION = 'reporta_baches_api.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-""" DATABASES = {
+DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
-} """
+}
 
 DB_PASSWORD = os.getenv('DB_PASSWORD')
 DB_USER = os.getenv('DB_USER')
@@ -101,7 +101,7 @@ DB_HOST = os.getenv('DB_HOST')
 DB_NAME = os.getenv('DB_NAME')
 DB_PORT = os.getenv('DB_PORT')
 
-DATABASES = {
+""" DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
             'NAME': DB_NAME,
@@ -112,7 +112,7 @@ DATABASES = {
             'OPTIONS': {'ssl': {'ca': os.environ.get('MYSQL_ATTR_SSL_CA')}}
         }
 }
-
+ """
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators

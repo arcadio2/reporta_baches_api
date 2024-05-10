@@ -55,7 +55,7 @@ class Register(CreateLisViewSet):
                                 pass
                 except Group.DoesNotExist:
                     pass
-            
+            serializer = self.get_serializer(user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else: 
             print("No es valido")

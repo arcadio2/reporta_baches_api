@@ -164,7 +164,7 @@ class ReportesTrabajador(CreateLisViewSet):
         id_user = payload["id"]
         try:
             print("XDDDD",id_user)
-            reportes_user = reportes_services.get_reporte_trabajador_repo().filter(user_id = id_user)
+            reportes_user = reportes_services.get_reporte_trabajador_repo().filter(user_id = id_user).order_by("-created_at")
         except :
             return ResponseError.build_single_error(
                 status.HTTP_400_BAD_REQUEST,

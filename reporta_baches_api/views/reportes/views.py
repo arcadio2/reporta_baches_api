@@ -146,6 +146,7 @@ class ReportesTrabajador(CreateLisViewSet):
                 img_file = InMemoryUploadedFile(img_io, None, 'processed_image.jpg', 'image/jpeg', img_io.tell(), None)
                 ImagenesTrabajador.objects.create(image_antes=image, image_despues=img_file, valido=validacion ,reporte=reporte)
             serializer = ReporteTrabajadorSerializer(reporte)
+            reporte.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else: 
             print("ENTRA")

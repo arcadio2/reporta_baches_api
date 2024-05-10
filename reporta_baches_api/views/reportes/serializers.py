@@ -38,7 +38,7 @@ class ReporteTrabajadorSerializer(serializers.ModelSerializer):
         imagenes_antes_validas_reporte = instance.imagenestrabajador_set.filter(valido=True).values_list('id', flat=True)
         return list(imagenes_antes_validas_reporte)
 
-    def get_imagenes_validas(self, instance):
+    def get_imagenes_invalidas(self, instance):
         imagenes_antes_validas_reporte = instance.imagenestrabajador_set.filter(valido=False).values_list('id', flat=True)
         return list(imagenes_antes_validas_reporte)
 

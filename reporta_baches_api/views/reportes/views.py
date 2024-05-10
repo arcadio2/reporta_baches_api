@@ -290,7 +290,7 @@ class VisualizarImagen(CreateLisViewSet):
         # Incluir la URL de la imagen en la respuesta JSON
         #data = serializer.data
         #data['image_url'] = imagen.image_despues.url 
-        image_content = imagen.imagen_antes.read()
+        image_content = imagen.image_antes.read()
         content_type = 'image/jpeg'
         return HttpResponse(image_content, content_type=content_type)
     

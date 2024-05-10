@@ -95,7 +95,7 @@ class ReportesTrabajador(CreateLisViewSet):
             reportesApp = ReportesAppServices()
 
             reporte = reportesApp.create_reporte_trabajador_from_dict(reporte)
-            serializer = ReporteTrabajadorSerializer(reporte)
+            
             reporte_valido = False
             for image in images:
                 #ImagenesTrabajador.objects.create(image_antes=image, reporte=reporte)
@@ -145,7 +145,7 @@ class ReportesTrabajador(CreateLisViewSet):
                 img_io.seek(0)
                 img_file = InMemoryUploadedFile(img_io, None, 'processed_image.jpg', 'image/jpeg', img_io.tell(), None)
                 ImagenesTrabajador.objects.create(image_antes=image, image_despues=img_file, valido=validacion ,reporte=reporte)
-                
+            serializer = ReporteTrabajadorSerializer(reporte)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else: 
             print("ENTRA")
@@ -276,8 +276,8 @@ class VisualizarImagen(CreateLisViewSet):
     def get(self, request):
         return Response(ImagenesTrabajadorSerializer(ImagenesTrabajador.objects.all()).data)
     
-    @action(detail=False, methods=['get'], name='get_imagen')
-    def get_imagen(self, request):
+    @action(detail=False, methods=['get'], name='get_imagen_antes_trabajador')
+    def get_imagen_antes_trabajador(self, request):
         queryparams = request.query_params
         image_id= queryparams["image_id"]
         print(image_id)
@@ -288,8 +288,23 @@ class VisualizarImagen(CreateLisViewSet):
         
         serializer = ImagenesTrabajadorSerializer(imagen)
         # Incluir la URL de la imagen en la respuesta JSON
-        data = serializer.data
-        data['image_url'] = imagen.image_despues.url 
+        #data = serializer.data
+        #data['image_url'] = imagen.image_despues.url 
+        image_content = imagen.imagen_antes.read()
+        content_type = 'image/jpeg'
+        return HttpResponse(image_content, content_type=content_type)
+    
+    @action(detail=False, methods=['get'], name='get_imagen_despues_trabajador')
+    def get_imagen_despues_trabajador(self, request):
+        queryparams = request.query_params
+        image_id= queryparams["image_id"]
+        try:
+            imagen = ImagenesTrabajador.objects.get(id=image_id)
+        except ImagenesTrabajador.DoesNotExist:
+            return Response({'error': 'Image not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = ImagenesTrabajadorSerializer(imagen)
+    
         image_content = imagen.image_despues.read()
         content_type = 'image/jpeg'
         return HttpResponse(image_content, content_type=content_type)

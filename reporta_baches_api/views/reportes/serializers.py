@@ -32,15 +32,27 @@ class ReporteTrabajadorSerializer(serializers.ModelSerializer):
     prioridad = serializers.CharField(source='prioridad.prioridad')
     tipo_bache = serializers.CharField(source = "tipo_bache.tipo")#TipoBacheSerializer()
     estado_reporte = serializers.CharField(source = "estado_reporte.estado") #EstadoReporteSerializer()
-    
+    imagenes_validas = serializers.SerializerMethodField(read_only=True)
+    imagenes_invalidas = serializers.SerializerMethodField(read_only=True)
+    def get_imagenes_validas(self, instance):
+        imagenes_antes_validas_reporte = instance.imagenestrabajador_set.filter(valido=True).values_list('id', flat=True)
+        return list(imagenes_antes_validas_reporte)
+
+    def get_imagenes_validas(self, instance):
+        imagenes_antes_validas_reporte = instance.imagenestrabajador_set.filter(valido=False).values_list('id', flat=True)
+        return list(imagenes_antes_validas_reporte)
+
+     
+
     class Meta:
         model = ReporteTrabajador
-        fields = ['id', 'created_at', 'user', 'ancho', 'profundidad', 'prioridad', 'tipo_bache', 'estado_reporte', 'latitud', 'longitud']
+        fields = ['id', 'created_at', 'user', 'ancho', 'profundidad', 'prioridad', 'tipo_bache', 'estado_reporte', 'latitud', 'longitud', 'valido','imagenes_validas','imagenes_invalidas']
         extra_kwargs = {
             'id':{'read_only':True},
             'user':{'read_only':True},
             'created_at':{'read_only':True}
         }  
+        
  
 
 class ReporteCiudadanoSerializer(serializers.ModelSerializer):
@@ -48,7 +60,7 @@ class ReporteCiudadanoSerializer(serializers.ModelSerializer):
     alcaldia = serializers.CharField(source = "direccion.alcaldia.alcaldia")
     class Meta:
         model = ReporteCiudadano
-        fields = ['id','created_at', 'user', 'latitud', 'longitud', 'num_ext', 'num_int', 'cp', 'descripcion', 'referencia_adicional', 'direccion', 'alcaldia']
+        fields = ['id','created_at', 'user', 'latitud', 'longitud', 'num_ext', 'num_int', 'cp', 'descripcion', 'referencia_adicional', 'direccion', 'alcaldia', 'valido']
         extra_kwargs = {
             'id':{'read_only':True},
             'created_at':{'read_only':True},

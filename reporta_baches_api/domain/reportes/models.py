@@ -55,6 +55,7 @@ class ReporteCiudadano(custom_models.DatedModel):
     descripcion = models.CharField(max_length = 300)
     referencia_adicional = models.CharField(max_length = 200, null=True)
     direccion = models.ForeignKey(Calle, on_delete = models.DO_NOTHING)
+    valido = models.BooleanField(default=False)
 
 
 class Prioridad(models.Model):
@@ -91,6 +92,7 @@ class ReporteTrabajador(custom_models.DatedModel):
     latitud = models.DecimalField(max_digits = 23, decimal_places =7 )
     longitud =  models.DecimalField(max_digits = 23, decimal_places =7 )
     direccion = models.ForeignKey(Calle, on_delete = models.DO_NOTHING,null=True)
+    valido = models.BooleanField(default=False)
 
 
 

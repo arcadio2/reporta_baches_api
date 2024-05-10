@@ -96,6 +96,7 @@ class ReportesTrabajador(CreateLisViewSet):
 
             reporte = reportesApp.create_reporte_trabajador_from_dict(reporte)
             serializer = ReporteTrabajadorSerializer(reporte)
+            reporte_valido = False
             for image in images:
                 #ImagenesTrabajador.objects.create(image_antes=image, reporte=reporte)
                 print('Ejecutando inferencia... ')
@@ -135,6 +136,8 @@ class ReportesTrabajador(CreateLisViewSet):
                     agnostic_mode=False)
                 
                 validacion = not (image_np_with_detections == image_np).all()
+                if(validacion): 
+                    reporte.valido = True
 
                 img_io = io.BytesIO()
                 processed_image = Image.fromarray(image_np_with_detections)

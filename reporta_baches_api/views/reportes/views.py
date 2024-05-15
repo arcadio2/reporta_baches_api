@@ -44,7 +44,7 @@ import os
 # ================== Modelo de IA ==================
 # Importando el modelo
 #PATH_TO_SAVED_MODEL="/home/bruno-rg/reporta_baches_api/mobilenet/saved_model"
-PATH_TO_SAVED_MODEL = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../mobilenet/saved_model"))
+PATH_TO_SAVED_MODEL = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../eficcientnet/saved_model"))
 print('Loading model... \n', end='')
 # Load saved model and build the detection function
 detect_fn=tf.saved_model.load(PATH_TO_SAVED_MODEL)

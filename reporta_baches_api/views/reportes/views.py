@@ -102,7 +102,7 @@ class ReportesTrabajador(CreateLisViewSet):
                 print('Ejecutando inferencia... ')
                 
                 image_np = load_image_into_numpy_array(image)
-
+                image_np = reportesApp.preprocess_image(image_np)
                 # The input needs to be a tensor, convert it using `tf.convert_to_tensor`.
                 input_tensor = tf.convert_to_tensor(image_np)
                 # The model expects a batch of images, so add an axis with `tf.newaxis`.

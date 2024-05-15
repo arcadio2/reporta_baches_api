@@ -1,3 +1,7 @@
+import os 
+import numpy as np
+import cv2
+
 
 from reporta_baches_api.domain.reportes.services import ReportesService
 
@@ -43,3 +47,28 @@ class ReportesAppServices:
         )
         reporte = self.reportes_service.create_reporte_ciudadano(params)
         return reporte
+    
+        # Función para aplicar el filtro de nitidez
+    def aplicar_nitidez(self, imagen):
+        # Definir un kernel de nitidez
+        kernel = np.array([[-1, -1, -1],
+                        [-1,  9, -1],
+                        [-1, -1, -1]])
+
+        # Aplicar el kernel a la imagen
+        imagen_nitida = cv2.filter2D(imagen, -1, kernel)
+        return imagen_nitida
+
+    # Filtro para estandarizar el contraste y brillo de la imagen
+    def filtroContrasteBrillo(self, imagen):
+        alpha = 1  # Factor de contraste
+        beta = -10  # Factor de brillo
+        imagen_ajustada = cv2.convertScaleAbs(imagen, alpha=alpha, beta=beta)
+        return imagen_ajustada
+
+    def preprocess_image(self, image):
+
+        imagen_nitida = self.aplicar_nitidez(image)
+        imagen_contraste = self.filtroContrasteBrillo(imagen_nitida)
+
+        return imagen_contraste

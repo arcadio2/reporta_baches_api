@@ -58,6 +58,7 @@ class ReportesAppServices:
     def create_direction_if_not_exist(self,calle, alcaldia):
         if not Alcaldia.objects.filter(alcaldia = alcaldia):
             alcaldia_repostory = Alcaldia.objects.create(alcaldia = alcaldia)
+            print("Se crea alcaldia", alcaldia_repostory)
             if not Calle.objects.filter(calle = calle):
                 Calle.objects.create(calle = calle, alcaldia = alcaldia_repostory)
 

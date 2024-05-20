@@ -21,6 +21,7 @@ class ReportesAppServices:
 
     def create_reporte_trabajador_from_dict(self, data:dict):
 
+
         params = ReporteTrabajadorBaseParams(
             user=data['user'],
             ancho=data['ancho'],

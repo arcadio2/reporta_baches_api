@@ -102,7 +102,7 @@ class ReportesTrabajador(CreateLisViewSet):
                 alcaldia__alcaldia = reporte["alcaldia"]
             ).first()
 
-            print("La direccion es ",direccion.alcaldia.alcaldia, direccion.calle)
+            print("La direccion es ",direccion.alcaldia.alcaldia, direccion.calle, direccion.id)
 
             reporte["direccion"] = direccion.id
             if(reporte["cp"]):

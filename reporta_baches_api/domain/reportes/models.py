@@ -129,5 +129,6 @@ class ReporteTrabajadorFactory:
             estado_reporte_id=base_params.estado_reporte,
             latitud=base_params.latitud,
             longitud=base_params.longitud,
-            cp = base_params.cp
+            cp = base_params.cp,
+            direccion_id=base_params.direccion,
         )

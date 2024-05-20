@@ -101,7 +101,8 @@ class ReportesTrabajador(CreateLisViewSet):
             ).first()
 
             reporte["direccion"] = direccion.id
-            reporte["cp"] = int(reporte["cp"])
+            if(reporte["cp"]):
+                reporte["cp"] = int(reporte["cp"])
             reporte["user"] = payload["id"]
             del reporte["alcaldia"]
             """END Add direction"""

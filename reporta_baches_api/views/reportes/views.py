@@ -311,7 +311,7 @@ class ReportesCiudadanos(CreateLisViewSet):
                 
                 validacion = not (image_np_with_detections == image_np).all()
                 if(validacion): 
-                    reporte.valido = True
+                    reporte_ciudadano.valido = True
 
 
                 img_io = io.BytesIO()
@@ -321,8 +321,8 @@ class ReportesCiudadanos(CreateLisViewSet):
                 img_file = InMemoryUploadedFile(img_io, None, 'processed_image.jpg', 'image/jpeg', img_io.tell(), None)
                 ImagenesCiudadano.objects.create(image_antes=image, image_despues=img_file, valido=validacion ,reporte=reporte)
             
-            serializer = ReporteCiudadanoSerializer(reporte)
-            reporte.save()
+            serializer = ReporteCiudadanoSerializer(reporte_ciudadano)
+            reporte_ciudadano.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 

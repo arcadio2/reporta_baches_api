@@ -235,8 +235,11 @@ class ReportesCiudadanos(CreateLisViewSet):
         data = dict(request.data)
         #data["images"].
         data = {key: value[0] if isinstance(value, list) else value for key, value in data.items()}
-
+        print("data",data)
+        print("Imagenes", images)
         serializer = self.get_serializer(data=data)
+
+
         if(serializer.is_valid()):
             
             reporte = data.copy()
@@ -320,7 +323,8 @@ class ReportesCiudadanos(CreateLisViewSet):
                 img_io.seek(0)
                 img_file = InMemoryUploadedFile(img_io, None, 'processed_image.jpg', 'image/jpeg', img_io.tell(), None)
                 ImagenesCiudadano.objects.create(image_antes=image, image_despues=img_file, valido=validacion ,reporte=reporte)
-            
+            else:
+                print("Error de serializacion")
             serializer = ReporteCiudadanoSerializer(reporte_ciudadano)
             reporte_ciudadano.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)

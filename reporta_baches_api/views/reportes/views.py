@@ -80,7 +80,8 @@ class ReportesTrabajador(CreateLisViewSet):
         data = dict(request.data)
         #data["images"].
         data = {key: value[0] if isinstance(value, list) else value for key, value in data.items()}
-        
+        if(not data['modo']): 
+            data['modo'] = 'manual'
         serializer = self.get_serializer(data=data)
         if(serializer.is_valid()):
             tipo_bache = TipoBache.objects.filter(tipo = data.get("tipo_bache")).first()
@@ -235,6 +236,8 @@ class ReportesCiudadanos(CreateLisViewSet):
         data = dict(request.data)
         #data["images"].
         data = {key: value[0] if isinstance(value, list) else value for key, value in data.items()}
+        if(not data['modo']): 
+            data['modo'] = 'manual'
         print("data",data)
         print("Imagenes", images)
         serializer = self.get_serializer(data=data)

@@ -51,7 +51,7 @@ class ReporteTrabajadorSerializer(serializers.ModelSerializer):
                   'profundidad', 'prioridad', 'tipo_bache', 
                   'estado_reporte', 'latitud', 'longitud', 'valido',
                   'direccion', 'alcaldia', 'cp',
-                  'imagenes_validas','imagenes_invalidas']
+                  'imagenes_validas','imagenes_invalidas','modo']
         extra_kwargs = {
             'id':{'read_only':True},
             'user':{'read_only':True},
@@ -70,7 +70,7 @@ class ReporteCiudadanoSerializer(serializers.ModelSerializer):
         fields = ['id','created_at', 'user', 'latitud', 
                   'longitud', 'num_ext', 'num_int', 'cp', 
                   'descripcion', 'referencia_adicional', 'direccion', 'alcaldia', 'valido',
-                   'imagenes_validas','imagenes_invalidas']
+                   'imagenes_validas','imagenes_invalidas','modo']
         extra_kwargs = {
             'id':{'read_only':True},
             'created_at':{'read_only':True},

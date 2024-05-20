@@ -32,7 +32,8 @@ class ReportesAppServices:
             latitud=data['latitud'],
             longitud=data['longitud'],
             cp = data['cp'],
-            direccion=data['direccion']
+            direccion=data['direccion'],
+            modo=data['modo']
         )
 
         return self.reportes_service.create_reporte_trabajador(params)
@@ -49,7 +50,8 @@ class ReportesAppServices:
                 cp=data['cp'],
                 descripcion=data['descripcion'],
                 referencia_adicional=data['referencia_adicional'],
-                direccion=data['direccion']
+                direccion=data['direccion'],
+                modo=data['modo']
             
         )
         reporte = self.reportes_service.create_reporte_ciudadano(params)

@@ -19,6 +19,7 @@ class ReporteCiudadanoBaseParams:
     descripcion: str
     referencia_adicional: str
     direccion: UUID
+    modo:str
     #prioridad: UUID
 
 @dataclass
@@ -33,6 +34,7 @@ class ReporteTrabajadorBaseParams:
     longitud: Decimal
     cp: str
     direccion: UUID
+    modo: str
 
 
 #TODO llenar calles y alcaldías
@@ -58,6 +60,7 @@ class ReporteCiudadano(custom_models.DatedModel):
     referencia_adicional = models.CharField(max_length = 200, null=True)
     direccion = models.ForeignKey(Calle, on_delete = models.DO_NOTHING)
     valido = models.BooleanField(default=False)
+    modo = models.CharField(max_length=20, default="Manual")
 
 
 class Prioridad(models.Model):
@@ -96,6 +99,7 @@ class ReporteTrabajador(custom_models.DatedModel):
     direccion = models.ForeignKey(Calle, on_delete = models.DO_NOTHING,null=True)
     cp = models.IntegerField(max_length = 5, default=0)
     valido = models.BooleanField(default=False)
+    modo = models.CharField(max_length=20, default="Manual")
 
 
 
@@ -113,6 +117,7 @@ class ReporteCiudadanoFactory:
             descripcion=base_params.descripcion,
             referencia_adicional=base_params.referencia_adicional,
             direccion_id=base_params.direccion,
+            modo = base_params.modo
             #prioridad_id=base_params.prioridad
         )
 
@@ -131,4 +136,5 @@ class ReporteTrabajadorFactory:
             longitud=base_params.longitud,
             cp = base_params.cp,
             direccion_id=base_params.direccion,
+            modo = base_params.modo
         )

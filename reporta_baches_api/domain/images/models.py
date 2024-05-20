@@ -19,5 +19,6 @@ class ImagenesCiudadano(custom_models.DatedModel):
     id = models.UUIDField(primary_key=True, editable=False,  default=uuid.uuid4)
     image_antes = models.ImageField(upload_to='imagenes_automatico/antes/', default=None)
     image_despues = models.ImageField(upload_to='imagenes_automatico/despues/', default=None)
+    valido = models.BooleanField(default=False)
     reporte = models.ForeignKey(ReporteCiudadano,on_delete=models.CASCADE)
 

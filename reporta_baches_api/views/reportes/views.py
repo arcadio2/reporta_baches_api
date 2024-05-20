@@ -325,11 +325,12 @@ class ReportesCiudadanos(CreateLisViewSet):
                 img_io.seek(0)
                 img_file = InMemoryUploadedFile(img_io, None, 'processed_image.jpg', 'image/jpeg', img_io.tell(), None)
                 ImagenesCiudadano.objects.create(image_antes=image, image_despues=img_file, valido=validacion ,reporte=reporte_ciudadano)
-            else:
-                print("Error de serializacion")
+        
             serializer = ReporteCiudadanoSerializer(reporte_ciudadano)
             reporte_ciudadano.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            print("Error de serializacion")
 
 
         return ResponseError.build_single_error(

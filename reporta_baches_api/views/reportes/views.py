@@ -232,7 +232,7 @@ class ReportesCiudadanos(CreateLisViewSet):
             reportesApp = ReportesAppServices()
             reportesApp.create_direction_if_not_exist(reporte["direccion"],reporte["alcaldia"])
 
-            print(reporte["direccion"], reporte["alcaldia"])
+            print("Direccion: ",reporte["direccion"], reporte["alcaldia"])
             
             direccion = Calle.objects.filter(
                 calle=reporte["direccion"], 

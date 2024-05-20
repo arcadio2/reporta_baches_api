@@ -34,6 +34,8 @@ class ReporteTrabajadorSerializer(serializers.ModelSerializer):
     estado_reporte = serializers.CharField(source = "estado_reporte.estado") #EstadoReporteSerializer()
     imagenes_validas = serializers.SerializerMethodField(read_only=True)
     imagenes_invalidas = serializers.SerializerMethodField(read_only=True)
+    direccion = serializers.CharField(source = "direccion.calle")
+    alcaldia = serializers.CharField(source = "direccion.alcaldia.alcaldia")
     def get_imagenes_validas(self, instance):
         imagenes_antes_validas_reporte = instance.imagenestrabajador_set.filter(valido=True).values_list('id', flat=True)
         return list(imagenes_antes_validas_reporte)
@@ -46,7 +48,11 @@ class ReporteTrabajadorSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ReporteTrabajador
-        fields = ['id', 'created_at', 'user', 'ancho', 'profundidad', 'prioridad', 'tipo_bache', 'estado_reporte', 'latitud', 'longitud', 'valido','imagenes_validas','imagenes_invalidas']
+        fields = ['id', 'created_at', 'user', 'ancho', 
+                  'profundidad', 'prioridad', 'tipo_bache', 
+                  'estado_reporte', 'latitud', 'longitud', 'valido',
+                  'dreccion', 'alcaldia', 'cp',
+                  'imagenes_validas','imagenes_invalidas']
         extra_kwargs = {
             'id':{'read_only':True},
             'user':{'read_only':True},

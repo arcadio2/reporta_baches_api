@@ -1,6 +1,10 @@
 import os 
 import numpy as np
 import cv2
+from reporta_baches_api.domain.reportes.models import(
+    Calle, 
+    Alcaldia,
+)
 
 
 from reporta_baches_api.domain.reportes.services import ReportesService
@@ -25,7 +29,9 @@ class ReportesAppServices:
             tipo_bache=data['tipo_bache'],
             estado_reporte=data['estado_reporte'],
             latitud=data['latitud'],
-            longitud=data['longitud']
+            longitud=data['longitud'],
+            cp = data['cp'],
+            direccion=data['direccion']
         )
 
         return self.reportes_service.create_reporte_trabajador(params)
@@ -47,6 +53,17 @@ class ReportesAppServices:
         )
         reporte = self.reportes_service.create_reporte_ciudadano(params)
         return reporte
+    
+
+    def create_direction_if_not_exist(self,calle, alcaldia):
+        if not Alcaldia.objects.filter(alcaldia = alcaldia):
+            alcaldia_repostory = Alcaldia.objects.create(alcaldia = alcaldia)
+            if not Calle.objects.filter(calle = calle):
+                Calle.objects.create(calle = calle, alcaldia = alcaldia_repostory)
+
+        if Alcaldia.objects.filter(alcaldia = alcaldia): 
+            if not Calle.objects.filter(calle = calle):
+                Calle.objects.create(calle = calle, alcaldia = alcaldia_repostory)
     
         # Función para aplicar el filtro de nitidez
     def aplicar_nitidez(self, imagen):

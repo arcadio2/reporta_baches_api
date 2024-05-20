@@ -13,7 +13,7 @@ from reporta_baches_api.domain.reportes.models import(
     Prioridad,
     ReporteCiudadano,
     Calle, 
-    Alcaldia
+    Alcaldia,
 )
 from django.utils.decorators import method_decorator
 from rest_framework.views import APIView
@@ -91,6 +91,20 @@ class ReportesTrabajador(CreateLisViewSet):
             reporte["estado_reporte"] = estado_reporte.id
             reporte["prioridad"] = prioridad.id
             reporte["user"] = payload["id"]
+            """Add Direction"""
+            reportesApp = ReportesAppServices()
+            reportesApp.create_direction_if_not_exist(reporte["direccion"],reporte["alcaldia"])
+            
+            direccion = Calle.objects.filter(
+                calle=reporte["direccion"], 
+                alcaldia__alcaldia = reporte["alcaldia"]
+            ).first()
+
+            reporte["direccion"] = direccion.id
+            reporte["cp"] = int(reporte["cp"])
+            reporte["user"] = payload["id"]
+            del reporte["alcaldia"]
+            """END Add direction"""
             
             reportesApp = ReportesAppServices()
 
@@ -214,6 +228,8 @@ class ReportesCiudadanos(CreateLisViewSet):
             reporte = data.copy()
 
             reportes_service = ReportesService()
+            reportesApp = ReportesAppServices()
+            reportesApp.create_direction_if_not_exist(reporte["direccion"],reporte["alcaldia"])
             
             direccion = Calle.objects.filter(
                 calle=reporte["direccion"], 
@@ -221,11 +237,12 @@ class ReportesCiudadanos(CreateLisViewSet):
             ).first()
 
             reporte["direccion"] = direccion.id
+            reporte["cp"] = int(reporte["cp"])
             reporte["user"] = payload["id"]
             del reporte["alcaldia"]
             print(reporte)
 
-            reportesApp = ReportesAppServices()
+            
 
             reporte_ciudadano = reportesApp.create_reporte_ciudadano_from_dict(reporte)
             reporte_serializer = ReporteCiudadanoSerializer(reporte_ciudadano)

@@ -31,6 +31,8 @@ class ReporteTrabajadorBaseParams:
     estado_reporte: UUID
     latitud: Decimal
     longitud: Decimal
+    cp: str
+    direccion: UUID
 
 
 #TODO llenar calles y alcaldías
@@ -92,6 +94,7 @@ class ReporteTrabajador(custom_models.DatedModel):
     latitud = models.DecimalField(max_digits = 23, decimal_places =7 )
     longitud =  models.DecimalField(max_digits = 23, decimal_places =7 )
     direccion = models.ForeignKey(Calle, on_delete = models.DO_NOTHING,null=True)
+    cp = models.IntegerField(max_length = 5)
     valido = models.BooleanField(default=False)
 
 
@@ -125,5 +128,6 @@ class ReporteTrabajadorFactory:
             tipo_bache_id=base_params.tipo_bache,
             estado_reporte_id=base_params.estado_reporte,
             latitud=base_params.latitud,
-            longitud=base_params.longitud
+            longitud=base_params.longitud,
+            cp = base_params.cp
         )

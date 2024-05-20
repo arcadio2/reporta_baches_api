@@ -344,7 +344,7 @@ class ReportesCiudadanos(CreateLisViewSet):
     def get_list_by_user(self, request,payload=None,name="get_list_by_user"):    
         reportes_services = ReportesService()
         try:
-            reportes_user = reportes_services.get_reporte_ciudadano_repo().filter(user_id = payload["id"])
+            reportes_user = reportes_services.get_reporte_ciudadano_repo().filter(user_id = payload["id"]).order_by("-created_at")
         except:
             print("Error") 
 

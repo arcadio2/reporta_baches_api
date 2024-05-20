@@ -51,7 +51,7 @@ class ReporteTrabajadorSerializer(serializers.ModelSerializer):
         fields = ['id', 'created_at', 'user', 'ancho', 
                   'profundidad', 'prioridad', 'tipo_bache', 
                   'estado_reporte', 'latitud', 'longitud', 'valido',
-                  'dreccion', 'alcaldia', 'cp',
+                  'direccion', 'alcaldia', 'cp',
                   'imagenes_validas','imagenes_invalidas']
         extra_kwargs = {
             'id':{'read_only':True},

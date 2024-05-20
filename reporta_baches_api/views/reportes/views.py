@@ -95,10 +95,14 @@ class ReportesTrabajador(CreateLisViewSet):
             reportesApp = ReportesAppServices()
             reportesApp.create_direction_if_not_exist(reporte["direccion"],reporte["alcaldia"])
             
+            print("Direccion: ",reporte["direccion"], reporte["alcaldia"])
+            
             direccion = Calle.objects.filter(
                 calle=reporte["direccion"], 
                 alcaldia__alcaldia = reporte["alcaldia"]
             ).first()
+
+            print("La direccion es ",direccion.alcaldia.alcaldia, direccion.calle)
 
             reporte["direccion"] = direccion.id
             if(reporte["cp"]):

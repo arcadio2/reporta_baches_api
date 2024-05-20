@@ -322,7 +322,7 @@ class ReportesCiudadanos(CreateLisViewSet):
                 processed_image.save(img_io, format='JPEG')
                 img_io.seek(0)
                 img_file = InMemoryUploadedFile(img_io, None, 'processed_image.jpg', 'image/jpeg', img_io.tell(), None)
-                ImagenesCiudadano.objects.create(image_antes=image, image_despues=img_file, valido=validacion ,reporte=reporte)
+                ImagenesCiudadano.objects.create(image_antes=image, image_despues=img_file, valido=validacion ,reporte=reporte_ciudadano)
             else:
                 print("Error de serializacion")
             serializer = ReporteCiudadanoSerializer(reporte_ciudadano)

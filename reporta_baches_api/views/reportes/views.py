@@ -114,7 +114,7 @@ class ReportesTrabajador(CreateLisViewSet):
             reportesApp = ReportesAppServices()
 
             reporte = reportesApp.create_reporte_trabajador_from_dict(reporte)
-            
+            print("Reporte", reporte)
             reporte_valido = False
             for image in images:
                 #ImagenesTrabajador.objects.create(image_antes=image, reporte=reporte)

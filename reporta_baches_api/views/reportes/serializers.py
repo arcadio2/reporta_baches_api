@@ -34,8 +34,8 @@ class ReporteTrabajadorSerializer(serializers.ModelSerializer):
     estado_reporte = serializers.CharField(source = "estado_reporte.estado") #EstadoReporteSerializer()
     imagenes_validas = serializers.SerializerMethodField(read_only=True)
     imagenes_invalidas = serializers.SerializerMethodField(read_only=True)
-    direccion = serializers.CharField(source = "direccion.calle")
-    alcaldia = serializers.CharField(source = "direccion.alcaldia.alcaldia")
+    direccion = serializers.CharField(source = "direccion.calle",  allow_null=True)
+    alcaldia = serializers.CharField(source = "direccion.alcaldia.alcaldia", allow_null=True)
     def get_imagenes_validas(self, instance):
         imagenes_antes_validas_reporte = instance.imagenestrabajador_set.filter(valido=True).values_list('id', flat=True)
         return list(imagenes_antes_validas_reporte)

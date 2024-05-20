@@ -94,7 +94,7 @@ class ReporteTrabajador(custom_models.DatedModel):
     latitud = models.DecimalField(max_digits = 23, decimal_places =7 )
     longitud =  models.DecimalField(max_digits = 23, decimal_places =7 )
     direccion = models.ForeignKey(Calle, on_delete = models.DO_NOTHING,null=True)
-    cp = models.IntegerField(max_length = 5)
+    cp = models.IntegerField(max_length = 5, default=0)
     valido = models.BooleanField(default=False)
 
 

@@ -62,6 +62,7 @@ class ReportesAppServices:
                 Calle.objects.create(calle = calle, alcaldia = alcaldia_repostory)
 
         if Alcaldia.objects.filter(alcaldia = alcaldia): 
+            alcaldia_repostory = Alcaldia.objects.filter(alcaldia = alcaldia).first()
             if not Calle.objects.filter(calle = calle):
                 Calle.objects.create(calle = calle, alcaldia = alcaldia_repostory)
     

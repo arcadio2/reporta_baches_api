@@ -10,6 +10,7 @@ routers.register('trabajador',ReportesTrabajador,'trbajador')
 routers.register('ciudadano',ReportesCiudadanos,'ciudadano')
 routers.register('imagenes',VisualizarImagen,'imagenes')
 
+
 urlpatterns = [
     path('',include(routers.urls)),
 

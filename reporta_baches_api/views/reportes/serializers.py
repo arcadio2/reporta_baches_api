@@ -44,7 +44,6 @@ class ReporteTrabajadorSerializer(serializers.ModelSerializer):
         imagenes_antes_validas_reporte = instance.imagenestrabajador_set.filter(valido=False).values_list('id', flat=True)
         return list(imagenes_antes_validas_reporte)
 
-     
 
     class Meta:
         model = ReporteTrabajador
@@ -64,17 +63,34 @@ class ReporteTrabajadorSerializer(serializers.ModelSerializer):
 class ReporteCiudadanoSerializer(serializers.ModelSerializer):
     direccion = serializers.CharField(source = "direccion.calle")
     alcaldia = serializers.CharField(source = "direccion.alcaldia.alcaldia")
+    imagenes_validas = serializers.SerializerMethodField(read_only=True)
+    imagenes_invalidas = serializers.SerializerMethodField(read_only=True)
     class Meta:
         model = ReporteCiudadano
-        fields = ['id','created_at', 'user', 'latitud', 'longitud', 'num_ext', 'num_int', 'cp', 'descripcion', 'referencia_adicional', 'direccion', 'alcaldia', 'valido']
+        fields = ['id','created_at', 'user', 'latitud', 
+                  'longitud', 'num_ext', 'num_int', 'cp', 
+                  'descripcion', 'referencia_adicional', 'direccion', 'alcaldia', 'valido',
+                   'imagenes_validas','imagenes_invalidas']
         extra_kwargs = {
             'id':{'read_only':True},
             'created_at':{'read_only':True},
             'user':{'read_only':True},
         }  
+    def get_imagenes_validas(self, instance):
+        imagenes_antes_validas_reporte = instance.imagenesciudadano_set.filter(valido=True).values_list('id', flat=True)
+        return list(imagenes_antes_validas_reporte)
+
+    def get_imagenes_invalidas(self, instance):
+        imagenes_antes_validas_reporte = instance.imagenesciudadano_set.filter(valido=False).values_list('id', flat=True)
+        return list(imagenes_antes_validas_reporte)
 
 
 class ImagenesTrabajadorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ImagenesTrabajador
+        fields = ['id','image_antes','image_despues','valido']
+
+class ImagenesCiudadanoSerializer(serializers.ModelSerializer):
     class Meta:
         model = ImagenesTrabajador
         fields = ['id','image_antes','image_despues','valido']

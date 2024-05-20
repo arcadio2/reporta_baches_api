@@ -18,7 +18,7 @@ from reporta_baches_api.domain.reportes.models import(
 from django.utils.decorators import method_decorator
 from rest_framework.views import APIView
 
-from reporta_baches_api.views.reportes.serializers import ReporteCiudadanoSerializer, ReporteTrabajadorSerializer, ImagenesTrabajadorSerializer
+from reporta_baches_api.views.reportes.serializers import ReporteCiudadanoSerializer, ReporteTrabajadorSerializer, ImagenesTrabajadorSerializer, ImagenesCiudadanoSerializer
 from reporta_baches_api.application.reportes.services import  ReportesAppServices
 from reporta_baches_api.domain.reportes.services import ReportesService
 from rest_framework import status
@@ -107,11 +107,7 @@ class ReportesTrabajador(CreateLisViewSet):
             if(reporte["cp"]):
                 reporte["cp"] = int(reporte["cp"])
 
-            if(reporte["num_int"]):
-                reporte["num_int"] = int(reporte["num_int"])
-
-            if(reporte["num_ext"]):
-                reporte["num_ext"] = int(reporte["num_ext"])
+            
                 
 
             reporte["user"] = payload["id"]
@@ -165,12 +161,14 @@ class ReportesTrabajador(CreateLisViewSet):
                 if(validacion): 
                     reporte.valido = True
 
+
                 img_io = io.BytesIO()
                 processed_image = Image.fromarray(image_np_with_detections)
                 processed_image.save(img_io, format='JPEG')
                 img_io.seek(0)
                 img_file = InMemoryUploadedFile(img_io, None, 'processed_image.jpg', 'image/jpeg', img_io.tell(), None)
                 ImagenesTrabajador.objects.create(image_antes=image, image_despues=img_file, valido=validacion ,reporte=reporte)
+            
             serializer = ReporteTrabajadorSerializer(reporte)
             reporte.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -233,7 +231,11 @@ class ReportesCiudadanos(CreateLisViewSet):
      
     @method_decorator(token_required)
     def create(self, request, payload=None): 
-        data = request.data
+        images = request.FILES.getlist('images')
+        data = dict(request.data)
+        #data["images"].
+        data = {key: value[0] if isinstance(value, list) else value for key, value in data.items()}
+
         serializer = self.get_serializer(data=data)
         if(serializer.is_valid()):
             
@@ -255,6 +257,13 @@ class ReportesCiudadanos(CreateLisViewSet):
             reporte["direccion"] = direccion.id
             if(reporte["cp"]):
                 reporte["cp"] = int(reporte["cp"])
+
+            if(reporte["num_int"]):
+                reporte["num_int"] = int(reporte["num_int"])
+
+            if(reporte["num_ext"]):
+                reporte["num_ext"] = int(reporte["num_ext"])
+
             reporte["user"] = payload["id"]
             del reporte["alcaldia"]
             print(reporte)
@@ -262,9 +271,60 @@ class ReportesCiudadanos(CreateLisViewSet):
             
 
             reporte_ciudadano = reportesApp.create_reporte_ciudadano_from_dict(reporte)
-            reporte_serializer = ReporteCiudadanoSerializer(reporte_ciudadano)
+            for image in images:
+                #ImagenesTrabajador.objects.create(image_antes=image, reporte=reporte)
+                print('Ejecutando inferencia... ')
+                
+                image_np = load_image_into_numpy_array(image)
+                image_np = reportesApp.preprocess_image(image_np)
+                # The input needs to be a tensor, convert it using `tf.convert_to_tensor`.
+                input_tensor = tf.convert_to_tensor(image_np)
+                # The model expects a batch of images, so add an axis with `tf.newaxis`.
+                input_tensor = input_tensor[tf.newaxis, ...]
 
-            return Response(reporte_serializer.data, status=status.HTTP_201_CREATED)
+                detections = detect_fn(input_tensor)
+
+                # All outputs are batches tensors.
+                # Convert to numpy arrays, and take index [0] to remove the batch dimension.
+                # We're only interested in the first num_detections.
+                num_detections = int(detections.pop('num_detections'))
+                detections = {key: value[0, :num_detections].numpy()
+                            for key, value in detections.items()}
+                detections['num_detections'] = num_detections
+
+                # detection_classes should be ints.
+                detections['detection_classes'] = detections['detection_classes'].astype(np.int64)
+
+
+                image_np_with_detections = image_np.copy()
+
+                viz_utils.visualize_boxes_and_labels_on_image_array(
+                    image_np_with_detections,
+                    detections['detection_boxes'],
+                    detections['detection_classes'],
+                    detections['detection_scores'],
+                    category_index,
+                    use_normalized_coordinates=True,
+                    max_boxes_to_draw=200,
+                    min_score_thresh=.4, # Adjust this value to set the minimum probability boxes to be classified as True
+                    agnostic_mode=False)
+                
+                validacion = not (image_np_with_detections == image_np).all()
+                if(validacion): 
+                    reporte.valido = True
+
+
+                img_io = io.BytesIO()
+                processed_image = Image.fromarray(image_np_with_detections)
+                processed_image.save(img_io, format='JPEG')
+                img_io.seek(0)
+                img_file = InMemoryUploadedFile(img_io, None, 'processed_image.jpg', 'image/jpeg', img_io.tell(), None)
+                ImagenesCiudadano.objects.create(image_antes=image, image_despues=img_file, valido=validacion ,reporte=reporte)
+            
+            serializer = ReporteCiudadanoSerializer(reporte)
+            reporte.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
 
         return ResponseError.build_single_error(
                 status.HTTP_400_BAD_REQUEST,
@@ -339,6 +399,39 @@ class VisualizarImagen(CreateLisViewSet):
             return Response({'error': 'Image not found'}, status=status.HTTP_404_NOT_FOUND)
         
         serializer = ImagenesTrabajadorSerializer(imagen)
+    
+        image_content = imagen.image_despues.read()
+        content_type = 'image/jpeg'
+        return HttpResponse(image_content, content_type=content_type)
+
+    @action(detail=False, methods=['get'], name='get_imagen_antes_ciudadano')
+    def get_imagen_antes_ciudadano(self, request):
+        queryparams = request.query_params
+        image_id= queryparams["image_id"]
+        print(image_id)
+        try:
+            imagen = ImagenesCiudadano.objects.get(id=image_id)
+        except ImagenesCiudadano.DoesNotExist:
+            return Response({'error': 'Image not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = ImagenesCiudadanoSerializer(imagen)
+        # Incluir la URL de la imagen en la respuesta JSON
+        #data = serializer.data
+        #data['image_url'] = imagen.image_despues.url 
+        image_content = imagen.image_antes.read()
+        content_type = 'image/jpeg'
+        return HttpResponse(image_content, content_type=content_type)
+    
+    @action(detail=False, methods=['get'], name='get_imagen_despues_ciudadano')
+    def get_imagen_despues_ciudadano(self, request):
+        queryparams = request.query_params
+        image_id= queryparams["image_id"]
+        try:
+            imagen = ImagenesCiudadano.objects.get(id=image_id)
+        except ImagenesCiudadano.DoesNotExist:
+            return Response({'error': 'Image not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = ImagenesCiudadanoSerializer(imagen)
     
         image_content = imagen.image_despues.read()
         content_type = 'image/jpeg'

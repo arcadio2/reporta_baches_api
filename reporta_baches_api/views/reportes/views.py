@@ -386,7 +386,20 @@ class ReportesTiempoReal(CreateLisViewSet):
             data["cp"] = int(data["cp"])
         
         print("Image ",data["width"], data["height"], data["cp"], data["longitud"])
+        
         if(serializer.is_valid()):
+            ras.create_direction_if_not_exist(data["direccion"],data["alcaldia"])
+
+            print("Direccion: ",data["direccion"], data["alcaldia"])
+            
+            direccion = Calle.objects.filter(
+                calle=data["direccion"], 
+                alcaldia__alcaldia = data["alcaldia"]
+            ).first()
+
+            print("La direccion es ",direccion.alcaldia.alcaldia, direccion.calle)
+
+            data["direccion"] = direccion.id
             image = data["image"]
             # Remove brackets and split the string into a list of number strings
             image = image.strip('[]')
@@ -397,6 +410,7 @@ class ReportesTiempoReal(CreateLisViewSet):
 
             # Convert the list of integers to a NumPy array
             image_np = np.array(data_int, dtype=np.uint8)
+            
 
             width = data["width"]
             height = data["height"]

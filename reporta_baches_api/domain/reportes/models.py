@@ -160,12 +160,12 @@ class ReporteTrabajadorFactory:
 class ReporteTiempoRealFactory: 
     @staticmethod
     def build_entity(base_params: ReporteTiempoRealBaseParams) -> ReporteTiempoReal:
-        return ReporteTrabajador.objects.create(
+        return ReporteTiempoReal.objects.create(
             id=uuid.uuid4(),
             user_id=base_params.user,
             latitud=base_params.latitud,
             longitud=base_params.longitud,
             cp = base_params.cp,
             direccion_id=base_params.direccion,
-            img_file = base_params.img_file
+            image = base_params.img_file
         )

@@ -67,7 +67,7 @@ class ReportesAppServices:
                 direccion=data['direccion'],   
                 img_file= img_file
         )
-        reporte = self.reportes_service.create_reporte_ciudadano(params)
+        reporte = self.reportes_service.create_reporte_tiempo_real(params)
         return reporte
     
 

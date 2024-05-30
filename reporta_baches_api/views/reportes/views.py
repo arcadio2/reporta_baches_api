@@ -488,4 +488,6 @@ class VisualizarImagen(CreateLisViewSet):
         image_content = imagen.image_despues.read()
         content_type = 'image/jpeg'
         return HttpResponse(image_content, content_type=content_type)
+    
+    
 

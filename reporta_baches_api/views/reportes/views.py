@@ -388,7 +388,16 @@ class ReportesTiempoReal(CreateLisViewSet):
         print("Image ",data["width"], data["height"], data["cp"], data["longitud"])
         if(serializer.is_valid()):
             image = data["image"]
-            image_np = np.array(image, dtype=np.uint8)
+            # Remove brackets and split the string into a list of number strings
+            image = image.strip('[]')
+            data_list = image.split(',')
+
+            # Convert the list of strings to a list of integers
+            data_int = [int(num) for num in data_list]
+
+            # Convert the list of integers to a NumPy array
+            image_np = np.array(data_int, dtype=np.uint8)
+
             width = data["width"]
             height = data["height"]
             image_np = image_np.reshape((height, width))

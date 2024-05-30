@@ -378,14 +378,18 @@ class ReportesTiempoReal(CreateLisViewSet):
         
     @method_decorator(token_required)
     def create(self, request, payload=None):
+        image = request.FILES.getlist('images')[0]
+        data = dict(request.data)
+        #data["images"].
+        data = {key: value[0] if isinstance(value, list) else value for key, value in data.items()}
         ras = ReportesAppServices()
-        data = request.data 
+        #data = request.data 
         serializer = self.get_serializer(data=data)
         data["user"] = payload["id"]
         if(data["cp"]):
             data["cp"] = int(data["cp"])
         
-        print("Image ",data["width"], data["height"], data["cp"], data["longitud"])
+        print("Image ", data["cp"], data["longitud"], data["latitud"], data["user"])
         
         if(serializer.is_valid()):
             ras.create_direction_if_not_exist(data["direccion"],data["alcaldia"])
@@ -398,33 +402,13 @@ class ReportesTiempoReal(CreateLisViewSet):
             ).first()
 
             print("La direccion es ",direccion.alcaldia.alcaldia, direccion.calle)
-
             data["direccion"] = direccion.id
-            image = data["image"]
-            # Remove brackets and split the string into a list of number strings
-            image = image.strip('[]')
-            data_list = image.split(',')
-
-            # Convert the list of strings to a list of integers
-            data_int = [int(num) for num in data_list]
-
-            # Convert the list of integers to a NumPy array
-            image_np = np.array(data_int, dtype=np.uint8)
-            
-
-            width = data["width"]
-            height = data["height"]
-            image_np = image_np.reshape((height, width, 3))
-            print(width,height)
-            print("Entra jeje", image_np)
-            img_io = io.BytesIO()
-            processed_image = Image.fromarray(image_np)
-            processed_image.save(img_io, format='JPEG')
-            img_io.seek(0)
-            img_file = InMemoryUploadedFile(img_io, None, 'processed_image.jpg', 'image/jpeg', img_io.tell(), None)
-            print("LLega a guardar")
-            reporte = ras.create_reporte_tiempo_real_from_dict(data,img_file)
-
+           
+            #image_np = np.array(image, dtype=np.uint8)
+            #print(image_np)
+            #img_file = InMemoryUploadedFile(img_io, None, 'processed_image.jpg', 'image/jpeg', img_io.tell(), None)
+            reporte = ras.create_reporte_tiempo_real_from_dict(data,image)
+            print("LLEHA AQUI JEJEJ")
             serializer = ReporteTiempoRealSerializer(reporte)
             print(serializer.data)
             return Response(serializer.data, status=status.HTTP_201_CREATED)

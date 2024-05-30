@@ -111,6 +111,7 @@ class ReporteTrabajador(custom_models.DatedModel):
     modo = models.CharField(max_length=20, default="Manual")
 
 class ReporteTiempoReal(custom_models.DatedModel): 
+    id = models.UUIDField(primary_key=True, editable=False,  default=uuid.uuid4)
     user = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,null=True)
     latitud = models.DecimalField(max_digits = 23, decimal_places =7 )
     longitud =  models.DecimalField(max_digits = 23, decimal_places =7 )

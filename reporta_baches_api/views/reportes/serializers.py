@@ -91,7 +91,7 @@ class ReporteTiempoRealSerializer(serializers.ModelSerializer):
     #imagen = serializers.SerializerMethodField(read_only=True)
     class Meta:
         model = ReporteTiempoReal
-        fields = ['id','created_at', 'user', 'latitud', #'direccion', 'alcaldia',
+        fields = ['id','created_at', 'user', 'latitud', 'direccion', 'alcaldia',
                   'longitud',  'cp', 'image']
         extra_kwargs = {
             'id':{'read_only':True},

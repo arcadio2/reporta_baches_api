@@ -406,11 +406,11 @@ class ReportesTiempoReal(CreateLisViewSet):
             print(serializer.data)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
-            print("Bad request")
+            print("Bad request", serializer.errors)
             return ResponseError.build_single_error(
                     status.HTTP_400_BAD_REQUEST,
                     "serializer-error-exception", 
-                    f"{serializer.errors}"
+                    f"{serializer.rerors}"
                 ).get_response()
 
 

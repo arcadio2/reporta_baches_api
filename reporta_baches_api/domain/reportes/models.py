@@ -38,6 +38,7 @@ class ReporteTrabajadorBaseParams:
 
 @dataclass
 class ReporteTiempoRealBaseParams:
+    user: UUID
     latitud: Decimal
     longitud: Decimal
     cp: str

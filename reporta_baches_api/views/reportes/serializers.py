@@ -86,8 +86,8 @@ class ReporteCiudadanoSerializer(serializers.ModelSerializer):
 
 
 class ReporteTiempoRealSerializer(serializers.ModelSerializer): 
-    #direccion = serializers.CharField(source = "direccion.calle")
-    #alcaldia = serializers.CharField(source = "direccion.alcaldia.alcaldia")
+    direccion = serializers.CharField(source = "direccion.calle")
+    alcaldia = serializers.CharField(source = "direccion.alcaldia.alcaldia")
     #imagen = serializers.SerializerMethodField(read_only=True)
     class Meta:
         model = ReporteTiempoReal

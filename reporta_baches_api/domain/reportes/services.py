@@ -1,7 +1,7 @@
 from typing import Type, List, Dict
-from .models import ReporteCiudadano, ReporteTrabajador
-from .models import ReporteCiudadanoFactory, ReporteTrabajadorFactory
-from .models import ReporteCiudadanoBaseParams, ReporteTrabajadorBaseParams
+from .models import ReporteCiudadano, ReporteTrabajador, ReporteTiempoReal
+from .models import ReporteCiudadanoFactory, ReporteTrabajadorFactory, ReporteTiempoRealFactory
+from .models import ReporteCiudadanoBaseParams, ReporteTrabajadorBaseParams, ReporteTiempoRealBaseParams
 from django.db.models.manager import BaseManager
 
 class ReportesService:
@@ -14,6 +14,9 @@ class ReportesService:
     
     def get_reporte_trabajador_factory(self) -> Type[ReporteTrabajadorFactory]:
         return ReporteTrabajadorFactory
+
+    def get_reporte_tiempoReal_factory(self) -> Type[ReporteTiempoRealFactory]:
+        return ReporteTiempoRealFactory
     
     def get_reporte_ciudadano_repo(self) -> BaseManager[ReporteCiudadano]:
         return ReporteCiudadano.objects
@@ -34,6 +37,14 @@ class ReportesService:
             base_params: ReporteTrabajadorBaseParams) -> ReporteTrabajador:
         
         instance = self.get_reporte_trabajador_factory().build_entity(base_params=base_params)
+        instance.save()
+        return instance
+    
+    def create_reporte_tiempo_real(
+            self, 
+            base_params: ReporteTiempoRealBaseParams) -> ReporteTiempoReal:
+        
+        instance = self.get_reporte_tiempoReal_factory().build_entity(base_params=base_params)
         instance.save()
         return instance
     

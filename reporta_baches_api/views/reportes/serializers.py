@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from reporta_baches_api.domain.reportes.models import ReporteTrabajador, ReporteCiudadano
-from reporta_baches_api.domain.reportes.models import Prioridad, TipoBache, EstadoReporte, Calle, Alcaldia
+from reporta_baches_api.domain.reportes.models import Prioridad, TipoBache, EstadoReporte, Calle, Alcaldia, ReporteTiempoReal
 from reporta_baches_api.domain.images.models import ImagenesTrabajador, ImagenesCiudadano
 
 class PrioridadSerializer(serializers.ModelSerializer):
@@ -83,6 +83,22 @@ class ReporteCiudadanoSerializer(serializers.ModelSerializer):
     def get_imagenes_invalidas(self, instance):
         imagenes_antes_validas_reporte = instance.imagenesciudadano_set.filter(valido=False).values_list('id', flat=True)
         return list(imagenes_antes_validas_reporte)
+
+
+class ReporteTiempoRealSerializer(serializers.ModelSerializer): 
+    direccion = serializers.CharField(source = "direccion.calle")
+    alcaldia = serializers.CharField(source = "direccion.alcaldia.alcaldia")
+    #imagen = serializers.SerializerMethodField(read_only=True)
+    class Meta:
+        model = ReporteTiempoReal
+        fields = ['id','created_at', 'user', 'latitud', 
+                  'longitud',  'cp', 'image']
+        extra_kwargs = {
+            'id':{'read_only':True},
+            'created_at':{'read_only':True},
+            'user':{'read_only':True},
+            'image':{'read_only':True}
+        }  
 
 
 class ImagenesTrabajadorSerializer(serializers.ModelSerializer):

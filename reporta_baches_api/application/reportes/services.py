@@ -11,6 +11,7 @@ from reporta_baches_api.domain.reportes.services import ReportesService
 
 from reporta_baches_api.domain.reportes.models import (
     ReporteCiudadanoBaseParams,
+    ReporteTiempoRealBaseParams,
     ReporteTrabajadorBaseParams
 )
 
@@ -53,6 +54,18 @@ class ReportesAppServices:
                 direccion=data['direccion'],
                 modo=data['modo']
             
+        )
+        reporte = self.reportes_service.create_reporte_ciudadano(params)
+        return reporte
+    
+    def create_reporte_tiempo_real_from_dict(self, data:dict, img_file): 
+        params = ReporteTiempoRealBaseParams(
+                user=data['user'],
+                latitud=data['latitud'],
+                longitud=data['longitud'],
+                cp=data['cp'],
+                direccion=data['direccion'],   
+                img_file= img_file
         )
         reporte = self.reportes_service.create_reporte_ciudadano(params)
         return reporte

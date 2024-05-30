@@ -36,6 +36,14 @@ class ReporteTrabajadorBaseParams:
     direccion: UUID
     modo: str
 
+@dataclass
+class ReporteTiempoRealBaseParams:
+    latitud: Decimal
+    longitud: Decimal
+    cp: str
+    direccion: UUID
+    img_file: any
+
 
 #TODO llenar calles y alcaldías
 class Alcaldia(models.Model):
@@ -101,6 +109,15 @@ class ReporteTrabajador(custom_models.DatedModel):
     valido = models.BooleanField(default=False)
     modo = models.CharField(max_length=20, default="Manual")
 
+class ReporteTiempoReal(custom_models.DatedModel): 
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,null=True)
+    latitud = models.DecimalField(max_digits = 23, decimal_places =7 )
+    longitud =  models.DecimalField(max_digits = 23, decimal_places =7 )
+    image = models.ImageField(upload_to='imagenes_tr/', default=None)
+    direccion = models.ForeignKey(Calle, on_delete = models.DO_NOTHING, null=True)
+    cp = models.IntegerField(max_length = 5, default=0)
+
+
 
 
 class ReporteCiudadanoFactory:
@@ -137,4 +154,17 @@ class ReporteTrabajadorFactory:
             cp = base_params.cp,
             direccion_id=base_params.direccion,
             modo = base_params.modo
+        )
+
+class ReporteTiempoRealFactory: 
+    @staticmethod
+    def build_entity(base_params: ReporteTiempoRealBaseParams) -> ReporteTiempoReal:
+        return ReporteTrabajador.objects.create(
+            id=uuid.uuid4(),
+            user_id=base_params.user,
+            latitud=base_params.latitud,
+            longitud=base_params.longitud,
+            cp = base_params.cp,
+            direccion_id=base_params.direccion,
+            img_file = base_params.img_file
         )

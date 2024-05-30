@@ -13,12 +13,13 @@ from reporta_baches_api.domain.reportes.models import(
     Prioridad,
     ReporteCiudadano,
     Calle, 
+    ReporteTiempoReal,
     Alcaldia,
 )
 from django.utils.decorators import method_decorator
 from rest_framework.views import APIView
 
-from reporta_baches_api.views.reportes.serializers import ReporteCiudadanoSerializer, ReporteTrabajadorSerializer, ImagenesTrabajadorSerializer, ImagenesCiudadanoSerializer
+from reporta_baches_api.views.reportes.serializers import ReporteCiudadanoSerializer, ReporteTrabajadorSerializer, ImagenesTrabajadorSerializer, ImagenesCiudadanoSerializer, ReporteTiempoRealSerializer
 from reporta_baches_api.application.reportes.services import  ReportesAppServices
 from reporta_baches_api.domain.reportes.services import ReportesService
 from rest_framework import status
@@ -360,6 +361,46 @@ class ReportesCiudadanos(CreateLisViewSet):
                 f"{serializer.errors}"
             ).get_response()
         data = 1 
+
+class ReportesTiempoReal(CreateLisViewSet): 
+    serializer_class = ReporteTiempoRealSerializer
+    model = ReporteTiempoReal
+
+    
+    def get_queryset(self):
+        reportes_ciudadano = ReporteTiempoReal()
+        #query_set =  super().get_queryset()
+        return ReportesTiempoReal.objects.all()
+    
+    def get_serializer_class(self):
+        if self.action == "create":
+            return ReporteTiempoRealSerializer
+        
+    @method_decorator(token_required)
+    def create(self, request, payload=None):
+        ras = ReportesAppServices()
+        data = request.data 
+        serializer = self.get_serializer(data=data)
+        data["user"] = payload["id"]
+        print(data)
+        if(data["cp"]):
+            data["cp"] = int(data["cp"])
+        if(serializer.is_valid()):
+            image = data["image"]
+            image_np = np.array(image, dtype=np.uint8)
+            width = data["width"]
+            height = data["height"]
+            image_np = image_np.reshape((height, width))
+
+            img_io = io.BytesIO()
+            processed_image = Image.fromarray(image_np)
+            processed_image.save(img_io, format='JPEG')
+            img_io.seek(0)
+            img_file = InMemoryUploadedFile(img_io, None, 'processed_image.jpg', 'image/jpeg', img_io.tell(), None)
+            ras.create_reporte_tiempo_real_from_dict(data,img_file)
+
+
+
         
 class VisualizarImagen(CreateLisViewSet):
     
@@ -374,7 +415,7 @@ class VisualizarImagen(CreateLisViewSet):
         
         return ImagenesTrabajadorSerializer
     
-
+    
     def get(self, request):
         return Response(ImagenesTrabajadorSerializer(ImagenesTrabajador.objects.all()).data)
     

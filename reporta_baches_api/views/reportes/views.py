@@ -420,6 +420,20 @@ class ReportesTiempoReal(CreateLisViewSet):
                     f"{serializer.rerors}"
                 ).get_response()
 
+    @method_decorator(token_required)
+    @action(methods=["get"],detail=False, url_path="get")
+    def get_list_by_user(self, request,payload=None,name="get_list_by_user"):    
+        reportes_services = ReportesService()
+        try:
+            reportes_user = reportes_services.get_reporte_tiempo_real_repo().filter(user_id = payload["id"]).order_by("-created_at")
+        except:
+            print("Error") 
+            
+        serializer = ReporteTiempoRealSerializer(reportes_user,many=True)
+        
+        #if(serializer.is_valid()):
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 
         

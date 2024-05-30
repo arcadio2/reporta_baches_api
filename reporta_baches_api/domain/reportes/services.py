@@ -23,6 +23,9 @@ class ReportesService:
     
     def get_reporte_trabajador_repo(self) -> BaseManager[ReporteTrabajador]:
         return ReporteTrabajador.objects
+
+    def get_reporte_tiempo_real_repo(self) -> BaseManager[ReporteTiempoReal]:
+        return ReporteTiempoReal.objects
     
     def create_reporte_ciudadano(
             self, 

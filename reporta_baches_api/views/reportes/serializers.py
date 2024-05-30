@@ -86,8 +86,8 @@ class ReporteCiudadanoSerializer(serializers.ModelSerializer):
 
 
 class ReporteTiempoRealSerializer(serializers.ModelSerializer): 
-    direccion = serializers.CharField(source = "direccion.calle")
-    alcaldia = serializers.CharField(source = "direccion.alcaldia.alcaldia")
+    #direccion = serializers.CharField(source = "direccion.calle")
+    #alcaldia = serializers.CharField(source = "direccion.alcaldia.alcaldia")
     #imagen = serializers.SerializerMethodField(read_only=True)
     class Meta:
         model = ReporteTiempoReal
@@ -98,8 +98,8 @@ class ReporteTiempoRealSerializer(serializers.ModelSerializer):
             'created_at':{'read_only':True},
             'user':{'read_only':True},
             'image':{'read_only':True},
-            'direccion':{'allow_null':True},
-            'alcaldia':{'allow_null':True}
+            #'direccion':{'allow_null':True, 'read_only':True},
+            #'alcaldia':{'allow_null':True, 'reald_only':True}
         }  
 
 

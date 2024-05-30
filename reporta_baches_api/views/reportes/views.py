@@ -425,7 +425,7 @@ class ReportesTiempoReal(CreateLisViewSet):
             print("LLega a guardar")
             reporte = ras.create_reporte_tiempo_real_from_dict(data,img_file)
 
-            serializer = ReporteCiudadanoSerializer(reporte)
+            serializer = ReporteTiempoRealSerializer(reporte)
             print(serializer.data)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:

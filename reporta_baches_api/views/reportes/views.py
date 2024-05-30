@@ -384,6 +384,8 @@ class ReportesTiempoReal(CreateLisViewSet):
         data["user"] = payload["id"]
         if(data["cp"]):
             data["cp"] = int(data["cp"])
+        
+        print("Image ",data["width"], data["height"])
         if(serializer.is_valid()):
             image = data["image"]
             image_np = np.array(image, dtype=np.uint8)
@@ -403,6 +405,14 @@ class ReportesTiempoReal(CreateLisViewSet):
             serializer = ReporteCiudadanoSerializer(reporte)
             print(serializer.data)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            print("Bad request")
+            return ResponseError.build_single_error(
+                    status.HTTP_400_BAD_REQUEST,
+                    "serializer-error-exception", 
+                    f"{serializer.errors}"
+                ).get_response()
+
 
 
         
@@ -488,6 +498,22 @@ class VisualizarImagen(CreateLisViewSet):
         image_content = imagen.image_despues.read()
         content_type = 'image/jpeg'
         return HttpResponse(image_content, content_type=content_type)
+
+    @action(detail=False, methods=['get'], name='get_imagen_tiempo_real')
+    def get_imagen_tiempo_real(self, request):
+        queryparams = request.query_params
+        image_id= queryparams["image_id"]
+        try:
+            imagen = ImagenesCiudadano.objects.get(id=image_id)
+        except ImagenesCiudadano.DoesNotExist:
+            return Response({'error': 'Image not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = ImagenesCiudadanoSerializer(imagen)
+    
+        image_content = imagen.image_despues.read()
+        content_type = 'image/jpeg'
+        return HttpResponse(image_content, content_type=content_type)
+    
     
     
 

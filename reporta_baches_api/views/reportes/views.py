@@ -400,7 +400,7 @@ class ReportesTiempoReal(CreateLisViewSet):
 
             width = data["width"]
             height = data["height"]
-            image_np = image_np.reshape((height, width))
+            image_np = image_np.reshape((height, width, 3))
             print(width,height)
             print("Entra jeje", image_np)
             img_io = io.BytesIO()

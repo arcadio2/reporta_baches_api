@@ -97,7 +97,9 @@ class ReporteTiempoRealSerializer(serializers.ModelSerializer):
             'id':{'read_only':True},
             'created_at':{'read_only':True},
             'user':{'read_only':True},
-            'image':{'read_only':True}
+            'image':{'read_only':True},
+            'direccion':{'allow_null':True},
+            'alcaldia':{'allow_null':True}
         }  
 
 

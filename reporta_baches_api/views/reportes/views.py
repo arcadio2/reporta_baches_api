@@ -385,7 +385,7 @@ class ReportesTiempoReal(CreateLisViewSet):
         if(data["cp"]):
             data["cp"] = int(data["cp"])
         
-        print("Image ",data["width"], data["height"])
+        print("Image ",data["width"], data["height"], data["cp"], data[""])
         if(serializer.is_valid()):
             image = data["image"]
             image_np = np.array(image, dtype=np.uint8)
@@ -504,13 +504,12 @@ class VisualizarImagen(CreateLisViewSet):
         queryparams = request.query_params
         image_id= queryparams["image_id"]
         try:
-            imagen = ImagenesCiudadano.objects.get(id=image_id)
-        except ImagenesCiudadano.DoesNotExist:
+            imagen = ReporteTiempoReal.objects.get(id=image_id)
+        except ReporteTiempoReal.DoesNotExist:
             return Response({'error': 'Image not found'}, status=status.HTTP_404_NOT_FOUND)
         
-        serializer = ImagenesCiudadanoSerializer(imagen)
     
-        image_content = imagen.image_despues.read()
+        image_content = imagen.image.read()
         content_type = 'image/jpeg'
         return HttpResponse(image_content, content_type=content_type)
     

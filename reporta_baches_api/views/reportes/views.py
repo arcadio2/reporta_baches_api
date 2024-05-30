@@ -385,7 +385,7 @@ class ReportesTiempoReal(CreateLisViewSet):
         if(data["cp"]):
             data["cp"] = int(data["cp"])
         
-        print("Image ",data["width"], data["height"], data["cp"], data[""])
+        print("Image ",data["width"], data["height"], data["cp"], data["longitud"])
         if(serializer.is_valid()):
             image = data["image"]
             image_np = np.array(image, dtype=np.uint8)

@@ -382,7 +382,6 @@ class ReportesTiempoReal(CreateLisViewSet):
         data = request.data 
         serializer = self.get_serializer(data=data)
         data["user"] = payload["id"]
-        print(data)
         if(data["cp"]):
             data["cp"] = int(data["cp"])
         if(serializer.is_valid()):
@@ -391,14 +390,19 @@ class ReportesTiempoReal(CreateLisViewSet):
             width = data["width"]
             height = data["height"]
             image_np = image_np.reshape((height, width))
-
+            print(width,height)
+            print("Entra jeje", image_np)
             img_io = io.BytesIO()
             processed_image = Image.fromarray(image_np)
             processed_image.save(img_io, format='JPEG')
             img_io.seek(0)
             img_file = InMemoryUploadedFile(img_io, None, 'processed_image.jpg', 'image/jpeg', img_io.tell(), None)
-            ras.create_reporte_tiempo_real_from_dict(data,img_file)
+            print("LLega a guardar")
+            reporte = ras.create_reporte_tiempo_real_from_dict(data,img_file)
 
+            serializer = ReporteCiudadanoSerializer(reporte)
+            print(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
         

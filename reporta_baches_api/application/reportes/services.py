@@ -138,7 +138,7 @@ class ReportesAppServices:
         BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
         # Definimos la ruta de la imagen (opcional)
-        image_path = os.path.join(BASE_DIR, 'bacheo.png')
+        image_path = os.path.join(BASE_DIR, '../../../bacheo.png')
         print("image ", image_path)
 
         # Leemos la imagen si está disponible

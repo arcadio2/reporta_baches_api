@@ -130,17 +130,16 @@ class ReportesAppServices:
             descripcion = reporte.comentarios"""
         lugar = reporte.direccion.calle + ' ' + reporte.direccion.alcaldia.alcaldia + ' ' + str(reporte.cp)
 
+        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
         # Información del email
         email_sender = settings.EMAIL_SENDER
         email_receiver = user.email
         password = settings.EMAIL_SENDER_PASSWORD
         subject = "Registro de solicitud"
-        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
         # Definimos la ruta de la imagen (opcional)
-        image_path = os.path.join(BASE_DIR, '../../../bacheo.png')
-        print("image ", image_path)
-
+        image_path = BASE_DIR+'/reportes/bacheo.png'
         # Leemos la imagen si está disponible
         img_data = None
         if os.path.exists(image_path):

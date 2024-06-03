@@ -1,0 +1,19 @@
+item {
+    id: 1
+    name: 'alligator cracking'
+}
+
+item {
+    id: 2
+    name: 'lateral cracking'
+}
+
+item {
+    id: 3
+    name: 'longitudinal cracking'
+}
+
+item {
+    id: 4
+    name: 'pothole'
+}

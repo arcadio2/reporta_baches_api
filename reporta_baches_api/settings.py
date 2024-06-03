@@ -23,6 +23,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
+EMAIL_SENDER = os.getenv('EMAIL_SENDER',"bacheoapp@gmail.com")
+EMAIL_SENDER_PASSWORD = os.getenv('EMAIL_SENDER_PASSWORD', 'bbts xxtr zzud zcyw')
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 

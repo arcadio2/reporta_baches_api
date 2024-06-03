@@ -1,11 +1,19 @@
 import os 
 import numpy as np
 import cv2
+import ssl
+from django.conf import settings
+from reporta_baches_api.domain.user.models import User
 from reporta_baches_api.domain.reportes.models import(
     Calle, 
     Alcaldia,
+    ReporteCiudadano,
+    ReporteTrabajador
 )
-
+from email.mime.image import MIMEImage
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+import smtplib
 
 from reporta_baches_api.domain.reportes.services import ReportesService
 
@@ -107,3 +115,74 @@ class ReportesAppServices:
         imagen_contraste = self.filtroContrasteBrillo(imagen_nitida)
 
         return imagen_contraste
+
+
+    def send_email(self, user:User, reporte: ReporteCiudadano | ReporteTrabajador):
+        # Variables dentro del correo
+        nombre = user.name
+        folio = reporte.id
+        estado = "Aceptado" if reporte.valido else "Rechazado"  # Puede ser "Aceptado" o "Rechazado"
+
+        """descripcion = ""
+        if(type(reporte)== ReporteCiudadano): 
+            descripcion = reporte.descripcion
+        elif(type(reporte)== ReporteTrabajador):
+            descripcion = reporte.comentarios"""
+        lugar = reporte.direccion.calle + ' ' + reporte.direccion.alcaldia.alcaldia + ' ' + str(reporte.cp)
+
+        # Información del email
+        email_sender = settings.EMAIL_SENDER
+        email_receiver = user.email
+        password = settings.EMAIL_SENDER_PASSWORD
+        subject = "Registro de solicitud"
+        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+        # Definimos la ruta de la imagen (opcional)
+        image_path = os.path.join(BASE_DIR, 'bacheo.png')
+        print("image ", image_path)
+
+        # Leemos la imagen si está disponible
+        img_data = None
+        if os.path.exists(image_path):
+            with open(image_path, 'rb') as img:
+                img_data = img.read()
+
+        # Creamos el email
+        em = MIMEMultipart("related")
+        em["From"] = email_sender
+        em["To"] = email_receiver
+        em["Subject"] = subject
+
+        # Cuerpo del correo en HTML con formato
+        body = f"""
+        <html>
+        <body style="background-color: #f2f2f2; padding: 20px; margin: 0;">
+            <div style="background-color: #ffffff; max-width: 600px; margin: 0 auto; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); text-align: center;">
+            <h2 style="color: #333333;">Hola, {nombre}.</h2>
+            <p>Gracias por confiar en BacheoApp.</p>
+            <p>Hemos validado tu petición de reporte.</p>
+            <p>El estado de tu reporte en {lugar} es:</p>
+            <div style="margin: 20px 0;">
+                <span style="display: inline-block; padding: 10px 20px; border-radius: 5px; background-color: {'#4CAF50' if estado == 'Aceptado' else '#f44336'}; color: #ffffff; font-weight: bold;">
+                {estado}
+                </span>
+            </div>
+            <p>Folio: {folio}</p>
+            {'<img src="cid:image1" style="max-width: 100%; height: auto; margin-top: 20px; border-radius: 10px;">' if img_data else ''}
+            </div>
+        </body>
+        </html>
+        """
+        em.attach(MIMEText(body, 'html'))
+
+        # Adjuntamos la imagen si está disponible
+        if img_data:
+            image = MIMEImage(img_data, name=os.path.basename(image_path))
+            image.add_header('Content-ID', '<image1>')
+            em.attach(image)
+
+        # Contexto de SSL y envío del email
+        context = ssl.create_default_context()
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as smtp:
+            smtp.login(email_sender, password)
+            smtp.sendmail(email_sender, email_receiver, em.as_string())

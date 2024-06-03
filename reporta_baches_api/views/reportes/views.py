@@ -16,6 +16,7 @@ from reporta_baches_api.domain.reportes.models import(
     ReporteTiempoReal,
     Alcaldia,
 )
+from reporta_baches_api.domain.user.models import User
 from django.utils.decorators import method_decorator
 from rest_framework.views import APIView
 
@@ -43,21 +44,34 @@ import matplotlib.pyplot as plt
 import os 
 
 # ================== Modelo de IA ==================
+# ================== MODO MANUAL ==================
 # Importando el modelo
-#PATH_TO_SAVED_MODEL="/home/bruno-rg/reporta_baches_api/mobilenet/saved_model"
-PATH_TO_SAVED_MODEL = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../mobilenet/saved_model"))
-print('Loading model... \n', end='')
+PATH_TO_SAVED_MODEL = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../mobilenet_manual/saved_model"))
+print('Loading manual model... \n', end='')
 # Load saved model and build the detection function
-detect_fn=tf.saved_model.load(PATH_TO_SAVED_MODEL)
-print('Done!')
+detect_fn_manual=tf.saved_model.load(PATH_TO_SAVED_MODEL)
+print('Done manual!')
 
 #Loading the label_map
-category_index=label_map_util.create_category_index_from_labelmap(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../label_map.pbtxt")),use_display_name=True)
+category_index_manual=label_map_util.create_category_index_from_labelmap(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../mobilenet_manual/label_map_manual.pbtxt")),use_display_name=True)
+# ================== MODO MANUAL ==================
+# ================== MODO AUTOMATICO ==================
+
+# Importando el modelo
+PATH_TO_SAVED_MODEL_AUTOMATIC = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../mobilenet_automatico/saved_model"))
+print('Loading automatic model... \n', end='')
+# Load saved model and build the detection function
+detect_fn_automatico=tf.saved_model.load(PATH_TO_SAVED_MODEL_AUTOMATIC)
+print('Done automatic!')
+
+#Loading the label_map
+category_index_automatico=label_map_util.create_category_index_from_labelmap(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../mobilenet_automatico/label_map_automatico.pbtxt")),use_display_name=True)
+# ================== MODO AUTOMATICO ==================
 
 def load_image_into_numpy_array(path):
     return np.array(Image.open(path))
 
-# ==================================================
+# ================== Modelo de IA ==================
 
 class ReportesTrabajador(CreateLisViewSet): 
 
@@ -92,6 +106,7 @@ class ReportesTrabajador(CreateLisViewSet):
             reporte["estado_reporte"] = estado_reporte.id
             reporte["prioridad"] = prioridad.id
             reporte["user"] = payload["id"]
+            usuario = User.objects.get(id=payload["id"])
             """Add Direction"""
             reportesApp = ReportesAppServices()
             reportesApp.create_direction_if_not_exist(reporte["direccion"],reporte["alcaldia"])
@@ -108,9 +123,6 @@ class ReportesTrabajador(CreateLisViewSet):
             if(reporte["cp"]):
                 reporte["cp"] = int(reporte["cp"])
 
-            
-                
-
             reporte["user"] = payload["id"]
             del reporte["alcaldia"]
             """END Add direction"""
@@ -119,20 +131,29 @@ class ReportesTrabajador(CreateLisViewSet):
 
             reporte = reportesApp.create_reporte_trabajador_from_dict(reporte)
             print("Reporte", reporte)
+            print(data)
             reporte_valido = False
             for image in images:
                 #ImagenesTrabajador.objects.create(image_antes=image, reporte=reporte)
-                print('Ejecutando inferencia... ')
                 
                 image_np = load_image_into_numpy_array(image)
-                image_np = reportesApp.preprocess_image(image_np)
+                #image_np = reportesApp.preprocess_image(image_np)
                 # The input needs to be a tensor, convert it using `tf.convert_to_tensor`.
                 input_tensor = tf.convert_to_tensor(image_np)
                 # The model expects a batch of images, so add an axis with `tf.newaxis`.
                 input_tensor = input_tensor[tf.newaxis, ...]
-
-                detections = detect_fn(input_tensor)
-
+                
+                categories = category_index_manual
+                if(data["modo"] == "manual"): 
+                    print('Ejecutando inferencia manual... ')
+                    detections = detect_fn_manual(input_tensor)
+                    categories = category_index_manual 
+                
+                else: 
+                    print('Ejecutando inferencia automatica... ')
+                    detections = detect_fn_automatico(input_tensor)
+                    categories = category_index_automatico
+            
                 # All outputs are batches tensors.
                 # Convert to numpy arrays, and take index [0] to remove the batch dimension.
                 # We're only interested in the first num_detections.
@@ -144,7 +165,6 @@ class ReportesTrabajador(CreateLisViewSet):
                 # detection_classes should be ints.
                 detections['detection_classes'] = detections['detection_classes'].astype(np.int64)
 
-
                 image_np_with_detections = image_np.copy()
 
                 viz_utils.visualize_boxes_and_labels_on_image_array(
@@ -152,12 +172,13 @@ class ReportesTrabajador(CreateLisViewSet):
                     detections['detection_boxes'],
                     detections['detection_classes'],
                     detections['detection_scores'],
-                    category_index,
+                    categories,
                     use_normalized_coordinates=True,
                     max_boxes_to_draw=200,
                     min_score_thresh=.4, # Adjust this value to set the minimum probability boxes to be classified as True
                     agnostic_mode=False)
                 
+
                 validacion = not (image_np_with_detections == image_np).all()
                 if(validacion): 
                     reporte.valido = True
@@ -170,6 +191,11 @@ class ReportesTrabajador(CreateLisViewSet):
                 img_file = InMemoryUploadedFile(img_io, None, 'processed_image.jpg', 'image/jpeg', img_io.tell(), None)
                 ImagenesTrabajador.objects.create(image_antes=image, image_despues=img_file, valido=validacion ,reporte=reporte)
             
+
+           
+            reportesApp.send_email(user= usuario, reporte = reporte)
+            # Agregamos correo                
+                
             serializer = ReporteTrabajadorSerializer(reporte)
             reporte.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -274,25 +300,29 @@ class ReportesCiudadanos(CreateLisViewSet):
             del reporte["alcaldia"]
             print(reporte)
 
-            
 
             reporte_ciudadano = reportesApp.create_reporte_ciudadano_from_dict(reporte)
             for image in images:
                 #ImagenesTrabajador.objects.create(image_antes=image, reporte=reporte)
-                print('Ejecutando inferencia... ')
+                
                 
                 image_np = load_image_into_numpy_array(image)
-                image_np = reportesApp.preprocess_image(image_np)
+                #image_np = reportesApp.preprocess_image(image_np)
                 # The input needs to be a tensor, convert it using `tf.convert_to_tensor`.
                 input_tensor = tf.convert_to_tensor(image_np)
                 # The model expects a batch of images, so add an axis with `tf.newaxis`.
                 input_tensor = input_tensor[tf.newaxis, ...]
 
-                detections = detect_fn(input_tensor)
+                categories = category_index_manual
+                if(data["modo"]== "manual"): 
+                    print('Ejecutando inferencia manual... ')
+                    detections = detect_fn_manual(input_tensor)
+                    categories = category_index_manual 
+                else: 
+                    print('Ejecutando inferencia automatica... ')
+                    detections = detect_fn_automatico(input_tensor)
+                    categories = category_index_automatico
 
-                # All outputs are batches tensors.
-                # Convert to numpy arrays, and take index [0] to remove the batch dimension.
-                # We're only interested in the first num_detections.
                 num_detections = int(detections.pop('num_detections'))
                 detections = {key: value[0, :num_detections].numpy()
                             for key, value in detections.items()}
@@ -301,7 +331,6 @@ class ReportesCiudadanos(CreateLisViewSet):
                 # detection_classes should be ints.
                 detections['detection_classes'] = detections['detection_classes'].astype(np.int64)
 
-
                 image_np_with_detections = image_np.copy()
 
                 viz_utils.visualize_boxes_and_labels_on_image_array(
@@ -309,12 +338,13 @@ class ReportesCiudadanos(CreateLisViewSet):
                     detections['detection_boxes'],
                     detections['detection_classes'],
                     detections['detection_scores'],
-                    category_index,
+                    categories,
                     use_normalized_coordinates=True,
                     max_boxes_to_draw=200,
                     min_score_thresh=.4, # Adjust this value to set the minimum probability boxes to be classified as True
                     agnostic_mode=False)
-                
+
+                print("LLEHGA AQUI")
                 validacion = not (image_np_with_detections == image_np).all()
                 if(validacion): 
                     reporte_ciudadano.valido = True
@@ -325,8 +355,10 @@ class ReportesCiudadanos(CreateLisViewSet):
                 processed_image.save(img_io, format='JPEG')
                 img_io.seek(0)
                 img_file = InMemoryUploadedFile(img_io, None, 'processed_image.jpg', 'image/jpeg', img_io.tell(), None)
+                print("LLEGA ANTES DE CREAR")
                 ImagenesCiudadano.objects.create(image_antes=image, image_despues=img_file, valido=validacion ,reporte=reporte_ciudadano)
-        
+                print("CREA LA IMAGEN")
+
             serializer = ReporteCiudadanoSerializer(reporte_ciudadano)
             reporte_ciudadano.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)

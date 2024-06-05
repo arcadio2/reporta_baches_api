@@ -161,8 +161,8 @@ class ReportesTrabajador(CreateLisViewSet):
                 if(validacion): 
                     reporte.valido = True
                 else: 
-                    detections = detect_fn_automatico(input_tensor)
-                    categories = category_index_automatico
+                    detections = detect_fn_manual(input_tensor)
+                    categories = category_index_manual
                     image_np_with_detections = reportesApp.procces_image(detections,categories, image_np.copy())
                     validacion = not (image_np_with_detections == image_np).all()
                     if(validacion): 
@@ -314,12 +314,14 @@ class ReportesCiudadanos(CreateLisViewSet):
                 if(validacion): 
                     reporte.valido = True
                 else: 
-                    detections = detect_fn_automatico(input_tensor)
-                    categories = category_index_automatico
+                    print("EJECUTANDO MODELO MANUAL EN REPORTE AUTOMATICO")
+                    detections = detect_fn_manual(input_tensor)
+                    categories = category_index_manual
                     image_np_with_detections = reportesApp.procces_image(detections,categories, image_np.copy())
                     validacion = not (image_np_with_detections == image_np).all()
                     if(validacion): 
                         reporte.valido = True
+                    print("Validacion")
 
 
                 img_io = io.BytesIO()

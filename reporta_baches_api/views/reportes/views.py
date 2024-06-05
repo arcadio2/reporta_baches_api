@@ -312,7 +312,7 @@ class ReportesCiudadanos(CreateLisViewSet):
 
                 validacion = not (image_np_with_detections == image_np).all()
                 if(validacion): 
-                    reporte.valido = True
+                    reporte_ciudadano.valido = True
                 else: 
                     print("EJECUTANDO MODELO MANUAL EN REPORTE AUTOMATICO")
                     detections = detect_fn_manual(input_tensor)
@@ -320,7 +320,7 @@ class ReportesCiudadanos(CreateLisViewSet):
                     image_np_with_detections = reportesApp.procces_image(detections,categories, image_np.copy())
                     validacion = not (image_np_with_detections == image_np).all()
                     if(validacion): 
-                        reporte.valido = True
+                        reporte_ciudadano.valido = True
                     print("Validacion")
 
 

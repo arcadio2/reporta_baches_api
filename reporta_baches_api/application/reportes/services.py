@@ -203,16 +203,20 @@ class ReportesAppServices:
         </body>
         </html>
         """
-        em.attach(MIMEText(body, 'html'))
+        try: 
+            em.attach(MIMEText(body, 'html'))
 
-        # Adjuntamos la imagen si está disponible
-        if img_data:
-            image = MIMEImage(img_data, name=os.path.basename(image_path))
-            image.add_header('Content-ID', '<image1>')
-            em.attach(image)
-
-        # Contexto de SSL y envío del email
-        context = ssl.create_default_context()
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as smtp:
-            smtp.login(email_sender, password)
-            smtp.sendmail(email_sender, email_receiver, em.as_string())
+            # Adjuntamos la imagen si está disponible
+            if img_data:
+                image = MIMEImage(img_data, name=os.path.basename(image_path))
+                image.add_header('Content-ID', '<image1>')
+                em.attach(image)
+            print("LLEGA AQUI A ENVIAR EL EMAIL")
+            # Contexto de SSL y envío del email
+            context = ssl.create_default_context()
+            with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as smtp:
+                smtp.login(email_sender, password)
+                smtp.sendmail(email_sender, email_receiver, em.as_string())
+                print("ENVIA EMAIL")
+        except Exception as e:
+            print(f"Error al enviar el email: {e}")

@@ -4,6 +4,8 @@ import cv2
 import ssl
 from django.conf import settings
 from reporta_baches_api.domain.user.models import User
+from object_detection.utils import label_map_util
+from object_detection.utils import visualization_utils as viz_utils
 from reporta_baches_api.domain.reportes.models import(
     Calle, 
     Alcaldia,
@@ -115,6 +117,35 @@ class ReportesAppServices:
         imagen_contraste = self.filtroContrasteBrillo(imagen_nitida)
 
         return imagen_contraste
+
+
+    def procces_image(self, detections, categories, image_np):
+         # All outputs are batches tensors.
+        # Convert to numpy arrays, and take index [0] to remove the batch dimension.
+        # We're only interested in the first num_detections.
+        num_detections = int(detections.pop('num_detections'))
+        detections = {key: value[0, :num_detections].numpy()
+                    for key, value in detections.items()}
+        detections['num_detections'] = num_detections
+
+        # detection_classes should be ints.
+        detections['detection_classes'] = detections['detection_classes'].astype(np.int64)
+
+        image_np_with_detections = image_np.copy()
+
+        viz_utils.visualize_boxes_and_labels_on_image_array(
+            image_np_with_detections,
+            detections['detection_boxes'],
+            detections['detection_classes'],
+            detections['detection_scores'],
+            categories,
+            use_normalized_coordinates=True,
+            max_boxes_to_draw=200,
+            min_score_thresh=.4, # Adjust this value to set the minimum probability boxes to be classified as True
+            agnostic_mode=False)
+    
+        return image_np_with_detections
+
 
 
     def send_email(self, user:User, reporte: ReporteCiudadano | ReporteTrabajador):

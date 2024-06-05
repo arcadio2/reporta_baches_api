@@ -154,34 +154,19 @@ class ReportesTrabajador(CreateLisViewSet):
                     detections = detect_fn_automatico(input_tensor)
                     categories = category_index_automatico
             
-                # All outputs are batches tensors.
-                # Convert to numpy arrays, and take index [0] to remove the batch dimension.
-                # We're only interested in the first num_detections.
-                num_detections = int(detections.pop('num_detections'))
-                detections = {key: value[0, :num_detections].numpy()
-                            for key, value in detections.items()}
-                detections['num_detections'] = num_detections
-
-                # detection_classes should be ints.
-                detections['detection_classes'] = detections['detection_classes'].astype(np.int64)
-
-                image_np_with_detections = image_np.copy()
-
-                viz_utils.visualize_boxes_and_labels_on_image_array(
-                    image_np_with_detections,
-                    detections['detection_boxes'],
-                    detections['detection_classes'],
-                    detections['detection_scores'],
-                    categories,
-                    use_normalized_coordinates=True,
-                    max_boxes_to_draw=200,
-                    min_score_thresh=.4, # Adjust this value to set the minimum probability boxes to be classified as True
-                    agnostic_mode=False)
-                
+             
+                image_np_with_detections = reportesApp.procces_image(detections,categories, image_np.copy())
 
                 validacion = not (image_np_with_detections == image_np).all()
                 if(validacion): 
                     reporte.valido = True
+                else: 
+                    detections = detect_fn_automatico(input_tensor)
+                    categories = category_index_automatico
+                    image_np_with_detections = reportesApp.procces_image(detections,categories, image_np.copy())
+                    validacion = not (image_np_with_detections == image_np).all()
+                    if(validacion): 
+                        reporte.valido = True
 
 
                 img_io = io.BytesIO()
@@ -323,31 +308,18 @@ class ReportesCiudadanos(CreateLisViewSet):
                     detections = detect_fn_automatico(input_tensor)
                     categories = category_index_automatico
 
-                num_detections = int(detections.pop('num_detections'))
-                detections = {key: value[0, :num_detections].numpy()
-                            for key, value in detections.items()}
-                detections['num_detections'] = num_detections
+                image_np_with_detections = reportesApp.procces_image(detections,categories, image_np.copy())
 
-                # detection_classes should be ints.
-                detections['detection_classes'] = detections['detection_classes'].astype(np.int64)
-
-                image_np_with_detections = image_np.copy()
-
-                viz_utils.visualize_boxes_and_labels_on_image_array(
-                    image_np_with_detections,
-                    detections['detection_boxes'],
-                    detections['detection_classes'],
-                    detections['detection_scores'],
-                    categories,
-                    use_normalized_coordinates=True,
-                    max_boxes_to_draw=200,
-                    min_score_thresh=.4, # Adjust this value to set the minimum probability boxes to be classified as True
-                    agnostic_mode=False)
-
-                print("LLEHGA AQUI")
                 validacion = not (image_np_with_detections == image_np).all()
                 if(validacion): 
-                    reporte_ciudadano.valido = True
+                    reporte.valido = True
+                else: 
+                    detections = detect_fn_automatico(input_tensor)
+                    categories = category_index_automatico
+                    image_np_with_detections = reportesApp.procces_image(detections,categories, image_np.copy())
+                    validacion = not (image_np_with_detections == image_np).all()
+                    if(validacion): 
+                        reporte.valido = True
 
 
                 img_io = io.BytesIO()
